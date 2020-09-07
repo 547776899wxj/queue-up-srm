@@ -185,8 +185,8 @@ export default {
 						this.title = datas[0].DEPT_NAME;
 					}
 					datas.forEach((data,index) =>{
-						let waitName =data.WAITING?this.hideName(data.WAITING):'';
-						let seeingName =data.CALLING?this.hideName(data.CALLING):'';
+						let waitName =data.WAITING?this.$util.hideName(data.WAITING):'';
+						let seeingName =data.CALLING?this.$util.hideName(data.CALLING):'';
 						let dataMap = {
 							room:data.CLINIQUE_NAME,
 							doctor:data.DOCTOR,
@@ -214,7 +214,7 @@ export default {
 						}
 					})
 					if(voiceDataInit.length>0){
-						this.findDifferentElements(voiceDataInit,this.voiceDataInit)
+						this.voiceData = this.$util.findDifferentElements(voiceDataInit,this.voiceDataInit);
 						this.voiceDataInit = voiceDataInit;
 					}
 					this.data = dataMaps;
@@ -283,21 +283,8 @@ export default {
 			}
 			return tmpnewchar;
 		},
-		//隐藏名字
-		hideName(name){
-			if(name.length==2){
-			    name = '*'+name.slice(1,name.length)
-			}else if(name.length>2){
-				name = name.slice(0,1) + '*' + name.slice(name.length-1,name.length)
-			}
-			return name;
-		},
-		//两个数组的差集
-		findDifferentElements(array1, array2) {
-			let data = array1.filter(function(v){ return array2.indexOf(v) == -1 });
-			this.voiceData = data;
-			return data;
-		}
+		
+		
 	}
 };
 </script>

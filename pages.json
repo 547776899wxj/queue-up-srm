@@ -73,6 +73,24 @@
             	}
             }	
         }
+        ,{
+            "path" : "pages/famous/famousSmall",
+            "style" : {
+            	"navigationBarTitleText": "",
+            	"app-plus": {
+            		"titleNView": false //禁用原生导航栏
+            	}
+            }	
+        }
+        ,{
+            "path" : "pages/journal/journal",
+            "style" : {
+            	"navigationBarTitleText": "",
+            	"app-plus": {
+            		"titleNView": false //禁用原生导航栏
+            	}
+            }
+        }
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

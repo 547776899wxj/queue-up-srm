@@ -26,6 +26,12 @@
 				<view class="uni-form-item ">
 					<button type="default" @click="navTo('../famous/famous')">老专家</button>
 				</view>
+				<view class="uni-form-item ">
+					<button type="default" @click="navTo('../famous/famousSmall')">老专家(小屏)</button>
+				</view>
+				<view class="uni-form-item ">
+					<button type="default" @click="navTo('../journal/journal')">工作日志</button>
+				</view>
 				<!-- <view>
 					{{failText}}
 				</view> -->

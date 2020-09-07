@@ -1,3 +1,4 @@
+
 <template>
 	<view class="content" @longpress="open" @click="open">
 		<image class="bg" src="/static/ultrasonic.jpg"></image>
@@ -36,7 +37,7 @@
 					</view>
 					<view class="uni-form-item uni-form-btn">
 						<view class="popup-title">屏幕：</view>
-						<input class="uni-input" v-model="screenNumber" type="number" placeholder="第一个屏幕输入:1" />
+						<input class="uni-input" v-model="screenNumber" placeholder="第一个屏幕输入:1" />
 					</view>
 					<view class="uni-form-item ">
 						<view class="popup-title">声音：</view>
@@ -190,21 +191,24 @@ export default {
 			}
 			this.data = [];
 			// 测试使用
-			let datas = [{"PATIENTNAME":"王素霞","LB":"CT","ROOM_NAME":"64排CT","WAIT_STATUS":"4","CALL_TIME1":"16:31:40","PATIENTCODE":"2-808","ERNAME":"64排CT","CALL_TIME":"16:31:40"},
+			let datas = [{"PATIENTNAME":"王素霞","LB":" EDO","ROOM_NAME":"检查室一","WAIT_STATUS":"4","CALL_TIME1":"16:31:40","PATIENTCODE":"2-808","ERNAME":"检查室一","CALL_TIME":"16:31:40"},
 
-			{"PATIENTNAME":"吴良付","LB":"EDO","ROOM_NAME":"检查室二","WAIT_STATUS":"6","CALL_TIME1":"15:32:53","PATIENTCODE":"14-03","ERNAME":"检查室二","CALL_TIME":"15:32:53"},
+{"PATIENTNAME":"吴良付","LB":"EDO","ROOM_NAME":"检查室二","WAIT_STATUS":"6","CALL_TIME1":"15:32:53","PATIENTCODE":"14-03","ERNAME":"检查室二","CALL_TIME":"15:32:53"},
 
-			{"PATIENTNAME":"田江芬","LB":"EDO","ROOM_NAME":"检查室三","WAIT_STATUS":"4","CALL_TIME1":"16:26:29","ERNAME":"检查室三","CALL_TIME":"16:26:29"}];
+{"PATIENTNAME":"田江芬","LB":"EDO","ROOM_NAME":"检查室三","WAIT_STATUS":"4","CALL_TIME1":"16:26:29","PATIENTCODE":"16-05","ERNAME":"检查室三","CALL_TIME":"16:26:29"},
+
+{"PATIENTNAME":"田江芬","LB":"EDO","ROOM_NAME":"检查室四","WAIT_STATUS":"4","CALL_TIME1":"16:26:29","PATIENTCODE":"16-05","ERNAME":"检查室四","CALL_TIME":"16:26:29"}];
 			datas[0].PATIENTCODE = datas[0].PATIENTCODE + this.testNubmer++
 			let voiceDataInit = [];
 			datas.forEach((data, index) => {
-				let name = this.hideName(data.PATIENTNAME);
+				let name = this.$util.hideName(data.PATIENTNAME);
 				let dataMap = {
 					room: data.ROOM_NAME,
 					number: data.PATIENTCODE||'',
 					name: name
 				};
 				this.data = this.data.concat(dataMap);
+			
 				if(name && this.playSound){
 					let number = this.chineseNumeral(dataMap.number+'')||'';
 					number = number?number+'号,':'';
@@ -220,7 +224,7 @@ export default {
 			});
 			if(this.playSound){
 				if(voiceDataInit.length>0){
-					this.findDifferentElements(voiceDataInit,this.voiceDataInit)
+					this.voiceData = this.$util.findDifferentElements(voiceDataInit,this.voiceDataInit);
 					this.voiceDataInit = voiceDataInit;
 				}
 				if(this.voiceData.length>0){
@@ -237,7 +241,7 @@ export default {
 			}			
 
 			// uni.request({
-			// 	url: 'http://129.1.20.21:8019/Queue/EXAM_Get_Queue',
+			// 	url: 'http://129.1.20.21:8019/Queue/CS_Get_Queue',
 			// 	// url: 'http://192.168.0.159:8018/Queue/Get_Queue',
 			// 	data: {
 			// 		lb: this.iType,
@@ -248,7 +252,7 @@ export default {
 			// 		let datas = res.data.Data;
 			// 		let voiceDataInit = [];
 			// 		datas.forEach((data, index) => {
-			// 			let name = this.hideName(data.PATIENTNAME);
+			// 			let name = this.$util.hideName(data.PATIENTNAME);
 			// 			let dataMap = {
 			// 				room: data.ROOM_NAME,
 			// 				number: data.PATIENTCODE,
@@ -349,15 +353,7 @@ export default {
 			}
 			return tmpnewchar;
 		},
-		//隐藏名字
-		hideName(name) {
-			if (name.length == 2) {
-				name = '*' + name.slice(1, name.length);
-			} else if (name.length > 2) {
-				name = name.slice(0, 1) + '*' + name.slice(name.length - 1, name.length);
-			}
-			return name;
-		},
+
 		
 		//声音设置
 		radioChange(evt) {
@@ -368,12 +364,7 @@ export default {
 			}
 			uni.setStorageSync('playSound', this.playSound);
 		},
-		//两个数组的差集
-		findDifferentElements(array1, array2) {
-			let data = array1.filter(function(v){ return array2.indexOf(v) == -1 });
-			this.voiceData = data;
-			return data;
-		}
+		
 	}
 };
 </script>

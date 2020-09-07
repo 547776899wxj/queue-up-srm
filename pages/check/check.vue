@@ -190,108 +190,72 @@ export default {
 			}
 			this.data = [];
 			// 测试使用
-			let datas = [{"PATIENTNAME":"王素霞","LB":"CT","ROOM_NAME":"64排CT","WAIT_STATUS":"4","CALL_TIME1":"16:31:40","PATIENTCODE":"2-808","ERNAME":"64排CT","CALL_TIME":"16:31:40"},
+			// let datas = [{"PATIENTNAME":"王素霞","LB":"CT","ROOM_NAME":"64排CT","WAIT_STATUS":"4","CALL_TIME1":"16:31:40","PATIENTCODE":"2-808","ERNAME":"64排CT","CALL_TIME":"16:31:40"},
 
-			{"PATIENTNAME":"吴良付","LB":"EDO","ROOM_NAME":"检查室二","WAIT_STATUS":"6","CALL_TIME1":"15:32:53","PATIENTCODE":"14-03","ERNAME":"检查室二","CALL_TIME":"15:32:53"},
+			// {"PATIENTNAME":"吴良付","LB":"EDO","ROOM_NAME":"检查室二","WAIT_STATUS":"6","CALL_TIME1":"15:32:53","PATIENTCODE":"14-03","ERNAME":"检查室二","CALL_TIME":"15:32:53"},
 
-			{"PATIENTNAME":"田江芬","LB":"EDO","ROOM_NAME":"检查室三","WAIT_STATUS":"4","CALL_TIME1":"16:26:29","ERNAME":"检查室三","CALL_TIME":"16:26:29"}];
-			datas[0].PATIENTCODE = datas[0].PATIENTCODE + this.testNubmer++
-			let voiceDataInit = [];
-			datas.forEach((data, index) => {
-				let name = this.hideName(data.PATIENTNAME);
-				let dataMap = {
-					room: data.ROOM_NAME,
-					number: data.PATIENTCODE||'',
-					name: name
-				};
-				this.data = this.data.concat(dataMap);
-				if(name && this.playSound){
-					let number = this.chineseNumeral(dataMap.number+'')||'';
-					number = number?number+'号,':'';
-					let speakText = `请,${number}${data.PATIENTNAME}到,${dataMap.room}检查`;
-					console.log(number);
-					if(this.data.length==0){
-						this.voiceData.push(speakText);
-						this.voiceDataInit.push(speakText);
+			// {"PATIENTNAME":"田江芬","LB":"EDO","ROOM_NAME":"检查室三","WAIT_STATUS":"4","CALL_TIME1":"16:26:29","ERNAME":"检查室三","CALL_TIME":"16:26:29"}];
+			// datas[0].PATIENTCODE = datas[0].PATIENTCODE + this.testNubmer++
+			
+
+			uni.request({
+				url: 'http://129.1.20.21:8019/Queue/EXAM_Get_Queue',
+				// url: 'http://192.168.0.159:8018/Queue/Get_Queue',
+				data: {
+					lb: this.iType,
+					room_name_type: this.screenNumber,
+				},
+				timeout: 3000,
+				success: res => {
+					let datas = res.data.Data;
+					let voiceDataInit = [];
+					datas.forEach((data, index) => {
+						let name = this.$util.hideName(data.PATIENTNAME);
+						let dataMap = {
+							room: data.ROOM_NAME,
+							number: data.PATIENTCODE||'',
+							name: name
+						};
+						this.data = this.data.concat(dataMap);
+						if(name && this.playSound){
+							let number = this.chineseNumeral(dataMap.number+'')||'';
+							number = number?number+'号,':'';
+							let speakText = `请,${number}${data.PATIENTNAME}到,${dataMap.room}检查`;
+							console.log(number);
+							if(this.data.length==0){
+								this.voiceData.push(speakText);
+								this.voiceDataInit.push(speakText);
+							}else{
+								voiceDataInit = voiceDataInit.concat(speakText);
+							}
+						}
+					});
+					if(this.playSound){
+						if(voiceDataInit.length>0){
+							this.voiceData = this.$util.findDifferentElements(voiceDataInit,this.voiceDataInit);
+							this.voiceDataInit = voiceDataInit;
+						}
+						if(this.voiceData.length>0){
+							this.voiceQueue();	
+						}else{
+							setTimeout(() => {
+								this.init()
+							}, 5000);
+						}
 					}else{
-						voiceDataInit = voiceDataInit.concat(speakText);
-					}
+						setTimeout(() => {
+							this.init();
+						}, 5000);
+					}			
+					
+				},
+				fail: res => {
+					uni.showToast({
+						title: '请求失败',
+						icon: 'none'
+					});
 				}
 			});
-			if(this.playSound){
-				if(voiceDataInit.length>0){
-					this.findDifferentElements(voiceDataInit,this.voiceDataInit)
-					this.voiceDataInit = voiceDataInit;
-				}
-				if(this.voiceData.length>0){
-					this.voiceQueue();	
-				}else{
-					setTimeout(() => {
-						this.init()
-					}, 5000);
-				}
-			}else{
-				setTimeout(() => {
-					this.init();
-				}, 5000);
-			}			
-
-			// uni.request({
-			// 	url: 'http://129.1.20.21:8019/Queue/EXAM_Get_Queue',
-			// 	// url: 'http://192.168.0.159:8018/Queue/Get_Queue',
-			// 	data: {
-			// 		lb: this.iType,
-			// 		room_name_type: this.screenNumber,
-			// 	},
-			// 	timeout: 3000,
-			// 	success: res => {
-			// 		let datas = res.data.Data;
-			// 		let voiceDataInit = [];
-			// 		datas.forEach((data, index) => {
-			// 			let name = this.hideName(data.PATIENTNAME);
-			// 			let dataMap = {
-			// 				room: data.ROOM_NAME,
-			// 				number: data.PATIENTCODE,
-			// 				name: name
-			// 			};
-			// 			this.data = this.data.concat(dataMap);
-			// 			if(name && this.playSound){
-			// 				let number = this.chineseNumeral(dataMap.seeing.number+'');
-			// 				let speakText = `请,${data.CALLING_SEQ}号,${data.CALLING}到,${dataMap.room}`;
-			// 				if(this.data.length==0){
-			// 					this.voiceData.push(speakText);
-			// 					this.voiceDataInit.push(speakText);
-			// 				}else{
-			// 					voiceDataInit = voiceDataInit.concat(speakText);
-			// 				}
-			// 			}
-			// 		});
-			// 		if(this.playSound){
-			// 			if(voiceDataInit.length>0){
-			// 				this.findDifferentElements(voiceDataInit,this.voiceDataInit)
-			// 				this.voiceDataInit = voiceDataInit;
-			// 			}
-			// 			if(this.voiceData.length>0){
-			// 				this.voiceQueue();	
-			// 			}else{
-			// 				setTimeout(() => {
-			// 					this.init()
-			// 				}, 5000);
-			// 			}
-			// 		}else{
-			// 			setTimeout(() => {
-			// 				this.init();
-			// 			}, 5000);
-			// 		}
-					
-			// 	},
-			// 	fail: res => {
-			// 		uni.showToast({
-			// 			title: '请求失败',
-			// 			icon: 'none'
-			// 		});
-			// 	}
-			// });
 		},
 		// 语音队列
 		voiceQueue(){
@@ -349,15 +313,7 @@ export default {
 			}
 			return tmpnewchar;
 		},
-		//隐藏名字
-		hideName(name) {
-			if (name.length == 2) {
-				name = '*' + name.slice(1, name.length);
-			} else if (name.length > 2) {
-				name = name.slice(0, 1) + '*' + name.slice(name.length - 1, name.length);
-			}
-			return name;
-		},
+		
 		
 		//声音设置
 		radioChange(evt) {
@@ -366,14 +322,8 @@ export default {
 			}else{
 				this.playSound = false;
 			}
-			uni.setStorageSync('playSound', this.playSound);
 		},
-		//两个数组的差集
-		findDifferentElements(array1, array2) {
-			let data = array1.filter(function(v){ return array2.indexOf(v) == -1 });
-			this.voiceData = data;
-			return data;
-		}
+		
 	}
 };
 </script>

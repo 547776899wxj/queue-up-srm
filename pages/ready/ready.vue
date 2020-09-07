@@ -175,50 +175,40 @@
 				}
 				this.data = [];
 				// 测试使用
-				console.log(this.screenNumber);
-				console.log(this.iType);
-				let datas = [{"PATIENTNAME":"王素霞","LB":"CT","ROOM_NAME":"64排CT","WAIT_STATUS":"4","CALL_TIME1":"16:31:40","PATIENTCODE":"2-8","ERNAME":"64排CT","CALL_TIME":"16:31:40"},
-				{"PATIENTNAME":"吴良付","LB":"EDO","ROOM_NAME":"检查室二","WAIT_STATUS":"6","CALL_TIME1":"15:32:53","PATIENTCODE":"14-03","ERNAME":"检查室二","CALL_TIME":"15:32:53"},
-				{"PATIENTNAME":"田江芬","LB":"EDO","ROOM_NAME":"检查室三","WAIT_STATUS":"4","CALL_TIME1":"16:26:29","PATIENTCODE":"16-05","ERNAME":"检查室三","CALL_TIME":"16:26:29"}];
-				datas[0].PATIENTCODE = datas[0].PATIENTCODE + this.testNubmer++
-				datas.forEach((data,index) =>{
-					let dataMap = {
-						room:data.ROOM_NAME,
-						number:data.PATIENTCODE,
+
+				// let datas = [{"PATIENTNAME":"王素霞","LB":"CT","ROOM_NAME":"64排CT","WAIT_STATUS":"4","CALL_TIME1":"16:31:40","PATIENTCODE":"2-8","ERNAME":"64排CT","CALL_TIME":"16:31:40"},
+				// {"PATIENTNAME":"吴良付","LB":"EDO","ROOM_NAME":"检查室二","WAIT_STATUS":"6","CALL_TIME1":"15:32:53","PATIENTCODE":"14-03","ERNAME":"检查室二","CALL_TIME":"15:32:53"},
+				// {"PATIENTNAME":"田江芬","LB":"EDO","ROOM_NAME":"检查室三","WAIT_STATUS":"4","CALL_TIME1":"16:26:29","PATIENTCODE":"16-05","ERNAME":"检查室三","CALL_TIME":"16:26:29"}];
+				// datas[0].PATIENTCODE = datas[0].PATIENTCODE + this.testNubmer++
+				
+				uni.request({
+				    url: 'http://129.1.20.21:8019/Queue/EXAM_Get_Queue', 
+				    // url: 'http://192.168.0.159:8018/Queue/Get_Queue', 
+					data:{
+						lb :this.iType ,
+						room_name_type: this.screenNumber,
+					},
+					timeout:3000,
+				    success: (res) => {
+						let datas = res.data.Data;
+						datas.forEach((data,index) =>{
+							let dataMap = {
+								room:data.ROOM_NAME,
+								number:data.PATIENTCODE,
+							}
+							this.data = this.data.concat(dataMap)
+						})
+						setTimeout(() => {
+							this.init();
+						}, 5000);
+				    },
+					fail:(res) => {
+						uni.showToast({
+							title:'请求失败',
+							icon:'none'
+						})
 					}
-					this.data = this.data.concat(dataMap)
-				})
-				setTimeout(() => {
-					this.init();
-				}, 5000);
-				// uni.request({
-				//     url: 'http://129.1.20.21:8019/Queue/EXAM_Get_Queue', 
-				//     // url: 'http://192.168.0.159:8018/Queue/Get_Queue', 
-				// 	data:{
-				// 		lb :this.iType ,
-				// 		room_name_type: this.screenNumber,
-				// 	},
-				// 	timeout:3000,
-				//     success: (res) => {
-				// 		let datas = res.data.Data;
-				// 		datas.forEach((data,index) =>{
-				// 			let dataMap = {
-				// 				room:data.ROOM_NAME,
-				// 				number:data.PATIENTCODE,
-				// 			}
-				// 			this.data = this.data.concat(dataMap)
-				// 		})
-				// 		setTimeout(() => {
-				// 			this.init();
-				// 		}, 5000);
-				//     },
-				// 	fail:(res) => {
-				// 		uni.showToast({
-				// 			title:'请求失败',
-				// 			icon:'none'
-				// 		})
-				// 	}
-				// });
+				});
 			},
 		}
 	}

@@ -5,8 +5,10 @@
 		<view class="header-title">{{title}}</view>
 		<view class="info">
 			<view class="info-item">
-				<view class="info-item-nubmer">{{data[0].number}}</view>
-				<view class="info-item-title">{{data[0].room}}</view>
+				<view >
+					<view class="info-item-nubmer">{{data.number}}</view>
+					<view class="info-item-title">{{data.name}}</view>
+				</view>
 			</view>
 			<view class="info-item">
 				<view class="info-words">
@@ -39,8 +41,8 @@
 						<input class="uni-input" v-model="iType" placeholder="请输入科室" />
 					</view>
 					<view class="uni-form-item ">
-						<view class="popup-title">屏幕：</view>
-						<input class="uni-input" v-model="screenNumber" type="number" placeholder="第一个屏幕输入:1" />
+						<view class="popup-title">诊室名：</view>
+						<input class="uni-input" v-model="screenNumber"  placeholder="诊室名(例如:诊室一)" />
 					</view>
 					<view class="uni-form-item uni-form-btn"><button type="default" class="chooseBtn" @click="navTo()">选择页面</button></view>
 					
@@ -68,14 +70,11 @@
 				},
 				title:'麻醉检查室',
 				weekday: [],
-				data:[
-					// {
-					// 	room:'科室1',
-					// 	number:'A1002',
-					// 	name:'张无忌',
-					// },
-				
-				],
+				data:{
+					room:'科室1',
+					number:'A1002',
+					name:'张无忌',
+				},
 				cliniqueCode:'',
 				iType:'',
 				popupShow:false,
@@ -92,22 +91,6 @@
 			this.iType = uni.getStorageSync('iType')||'';
 			this.screenNumber = uni.getStorageSync('screenNumber') || '';
 			this.title = uni.getStorageSync('title') || '';
-			// let date = new Date();
-			// this.weekday = new Array(7);
-			// this.weekday[0] = '星期日';
-			// this.weekday[1] = '星期一';
-			// this.weekday[2] = '星期二';
-			// this.weekday[3] = '星期三';
-			// this.weekday[4] = '星期四';
-			// this.weekday[5] = '星期五';
-			// this.weekday[6] = '星期六';
-			// this.newDate();
-			// setTimeout(() => {
-			// 	this.newDate();
-			// 	setInterval(() => {
-			// 		this.newDate();
-			// 	}, 60000);
-			// }, date.getSeconds() * 1000);
 			if(this.iType){
 				this.init();
 			}
@@ -119,17 +102,6 @@
 				uni.redirectTo({
 					url: '../index/index',
 				});
-			},
-			//当前时间
-			newDate() {
-				let date = new Date();
-				this.dateText = {
-					year: date.getFullYear(),
-					month: date.getMonth() + 1,
-					date: date.getDate(),
-					day: this.weekday[date.getDay()],
-					time: date.getHours() + ':' + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes())
-				};
 			},
 			// 打开设置
 			open(){
@@ -159,7 +131,6 @@
 				uni.setStorageSync('screenNumber', this.screenNumber);
 				uni.setStorageSync('title', this.title);
 				this.popupShow = false;
-				this.data = [];
 				this.init();
 				this.$refs.popup.close();
 				uni.hideLoading();
@@ -169,26 +140,26 @@
 				if(this.popupShow){
 					return false;
 				}
-				this.data = [];
 				// 测试使用
-				console.log(this.screenNumber);
-				console.log(this.iType);
 				let datas = [{"PATIENTNAME":"王素霞","LB":"CT","ROOM_NAME":"64排CT","WAIT_STATUS":"4","CALL_TIME1":"16:31:40","PATIENTCODE":"2-8","ERNAME":"64排CT","CALL_TIME":"16:31:40"},
 				{"PATIENTNAME":"吴良付","LB":"EDO","ROOM_NAME":"检查室二","WAIT_STATUS":"6","CALL_TIME1":"15:32:53","PATIENTCODE":"14-03","ERNAME":"检查室二","CALL_TIME":"15:32:53"},
 				{"PATIENTNAME":"田江芬","LB":"EDO","ROOM_NAME":"检查室三","WAIT_STATUS":"4","CALL_TIME1":"16:26:29","PATIENTCODE":"16-05","ERNAME":"检查室三","CALL_TIME":"16:26:29"}];
 				datas[0].PATIENTCODE = datas[0].PATIENTCODE + this.testNubmer++
-				datas.forEach((data,index) =>{
+				if(datas.length>0){
+					let name = this.$util.hideName(datas[0].PATIENTNAME);
 					let dataMap = {
-						room:data.ROOM_NAME,
-						number:data.PATIENTCODE,
+						name:name,
+						number:datas[0].PATIENTCODE,
 					}
-					this.data = this.data.concat(dataMap)
-				})
-				setTimeout(() => {
-					this.init();
-				}, 5000);
+					this.data = dataMap
+				}else{
+					this.data = {
+						name:'',
+						number:'',
+					}
+				}
 				// uni.request({
-				//     url: 'http://129.1.20.21:8019/Queue/EXAM_Get_Queue', 
+				//     url: 'http://129.1.20.21:8019/Queue/CS_Get_Queue', 
 				//     // url: 'http://192.168.0.159:8018/Queue/Get_Queue', 
 				// 	data:{
 				// 		lb :this.iType ,
@@ -197,13 +168,20 @@
 				// 	timeout:3000,
 				//     success: (res) => {
 				// 		let datas = res.data.Data;
-				// 		datas.forEach((data,index) =>{
+				// 		if(datas.length>0){
 				// 			let dataMap = {
-				// 				room:data.ROOM_NAME,
-				// 				number:data.PATIENTCODE,
+				// 				name:datas[0].PATIENTNAME,
+				// 				number:datas[0].PATIENTCODE,
 				// 			}
-				// 			this.data = this.data.concat(dataMap)
-				// 		})
+				// 			this.data = dataMap
+				// 		}else{
+				// 			this.data = {
+				// 				name:'',
+				// 				number:'',
+				// 			}
+				// 		}
+						
+						
 				// 		setTimeout(() => {
 				// 			this.init();
 				// 		}, 5000);
