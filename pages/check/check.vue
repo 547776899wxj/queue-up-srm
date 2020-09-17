@@ -1,3 +1,6 @@
+/**
+ * 检查间
+ */
 <template>
 	<view class="content" @longpress="open" @click="open">
 		<image class="bg" src="/static/check.png"></image>
@@ -15,13 +18,19 @@
 		</view>
 		<view class="info">
 			<view class="info-patient" v-for="(item, index) in data" :key="index">
+				<view class="room">{{ item.room }}</view>
 				<view class="name">
 					<text class="pr-15" v-if="item.number">{{ item.number }}号</text>
 					<text class="pl-15">{{ item.name }}</text>
 				</view>
-				<view class="room">{{ item.room }}</view>
+				<view class="name">
+					<text class="pr-15" v-if="item.nextCode">{{ item.nextCode }}号</text>
+					<text class="pl-15">{{ item.nextName }}</text>
+				</view>
+				
 			</view>
 		</view>
+		<!-- 媒体查询1280px -->
 		<uni-popup ref="popup" type="center" :maskClick="false">
 			<view class="popup">
 				<view class="popup-header">设置</view>
@@ -30,15 +39,11 @@
 						<view class="popup-title">标题：</view>
 						<input class="uni-input" v-model="title" placeholder="请输入标题" />
 					</view>
-					<view class="uni-form-item uni-form-btn">
-						<view class="popup-title">科室：</view>
-						<input class="uni-input" v-model="iType" placeholder="请输入科室" />
-					</view>
-					<view class="uni-form-item ">
+					<view class="uni-form-item  uni-form-btn">
 						<view class="popup-title">屏幕：</view>
 						<input class="uni-input" v-model="screenNumber" type="number" placeholder="第一个屏幕输入:1" />
 					</view>
-					<view class="uni-form-item uni-form-btn">
+					<view class="uni-form-item ">
 						<view class="popup-title">声音：</view>
 						<radio-group @change="radioChange" class="radio-group">
 							<label class="uni-list-cell uni-list-cell-pd">
@@ -55,7 +60,7 @@
 						    </label>
 						</radio-group>
 					</view>
-					<view class="uni-form-item "><button type="default" class="chooseBtn" @click="navTo()">选择页面</button></view>
+					<view class="uni-form-item uni-form-btn"><button type="default" class="chooseBtn" @click="navTo()">选择页面</button></view>
 					
 					<view class="uni-form-item ">
 						<button class="popup-btn" @click="close">取消</button>
@@ -86,11 +91,23 @@ export default {
 			title: '',
 			weekday: [],
 			data: [
-				// {
-				// 	room:'科室1',
-				// 	number:'A1002',
-				// 	name:'张无忌',
-				// },
+				{
+					room:'',
+					number:'',
+					name:'',
+				},{
+					room:'',
+					number:'',
+					name:'',
+				},{
+					room:'',
+					number:'',
+					name:'',
+				},{
+					room:'',
+					number:'',
+					name:'',
+				},
 			],
 			cliniqueCode: '',
 			iType: '',
@@ -107,7 +124,6 @@ export default {
 		};
 	},
 	onLoad() {
-		this.iType = uni.getStorageSync('iType') || '';
 		this.screenNumber = uni.getStorageSync('screenNumber') || '';
 		this.title = uni.getStorageSync('title') || '';
 		this.playSound = uni.getStorageSync('playSound') || false;
@@ -120,18 +136,55 @@ export default {
 		this.weekday[4] = '星期四';
 		this.weekday[5] = '星期五';
 		this.weekday[6] = '星期六';
-		this.newDate();
-		setTimeout(() => {
-			this.newDate();
-			setInterval(() => {
-				this.newDate();
-			}, 60000);
-		}, date.getSeconds() * 1000);
-		if (this.iType && this.screenNumber) {
+		if (this.screenNumber) {
 			this.init();
 		}
 	},
 	methods: {
+		//初始化room
+		initRoom(){
+			if(this.screenNumber==1){
+				this.data = [
+					{
+						room:'检查室一',
+						number:'',
+						name:'',
+					},{
+						room:'检查室二',
+						number:'',
+						name:'',
+					},{
+						room:'检查室三',
+						number:'',
+						name:'',
+					},{
+						room:'检查室四',
+						number:'',
+						name:'',
+					}
+				]
+			}else{
+				this.data = [
+					{
+						room:'麻醉室一',
+						number:'',
+						name:'',
+					},{
+						room:'麻醉室二',
+						number:'',
+						name:'',
+					},{
+						room:'麻醉室三',
+						number:'',
+						name:'',
+					},{
+						room:'麻醉室四',
+						number:'',
+						name:'',
+					},
+				]
+			}
+		},
 		//选择页面
 		navTo(){
 			uni.setStorageSync('pageSetBoolean',false);
@@ -140,8 +193,8 @@ export default {
 			});
 		},
 		//当前时间
-		newDate() {
-			let date = new Date();
+		newDate(dataTime) {
+			let date = new Date(dataTime);
 			this.dateText = {
 				year: date.getFullYear(),
 				month: date.getMonth() + 1,
@@ -162,23 +215,14 @@ export default {
 		},
 		//确定设置
 		confirm() {
-			if (this.iType === '') {
-				uni.showToast({
-					title: '请输入科室',
-					icon: 'none'
-				});
-				return;
-			}
-				
 			uni.showLoading({
 				title: '加载中'
 			});
-			uni.setStorageSync('iType', this.iType);
 			uni.setStorageSync('playSound', this.playSound);
 			uni.setStorageSync('screenNumber', this.screenNumber);
 			uni.setStorageSync('title', this.title);
 			this.popupShow = false;
-			this.data = [];
+			this.initRoom();
 			this.init();
 			this.$refs.popup.close();
 			uni.hideLoading();
@@ -188,40 +232,75 @@ export default {
 			if (this.popupShow) {
 				return false;
 			}
-			this.data = [];
-			// 测试使用
-			// let datas = [{"PATIENTNAME":"王素霞","LB":"CT","ROOM_NAME":"64排CT","WAIT_STATUS":"4","CALL_TIME1":"16:31:40","PATIENTCODE":"2-808","ERNAME":"64排CT","CALL_TIME":"16:31:40"},
-
-			// {"PATIENTNAME":"吴良付","LB":"EDO","ROOM_NAME":"检查室二","WAIT_STATUS":"6","CALL_TIME1":"15:32:53","PATIENTCODE":"14-03","ERNAME":"检查室二","CALL_TIME":"15:32:53"},
-
-			// {"PATIENTNAME":"田江芬","LB":"EDO","ROOM_NAME":"检查室三","WAIT_STATUS":"4","CALL_TIME1":"16:26:29","ERNAME":"检查室三","CALL_TIME":"16:26:29"}];
-			// datas[0].PATIENTCODE = datas[0].PATIENTCODE + this.testNubmer++
 			
-
+			// 测试使用
+			// let res = {data:{"Data":[
+			// {"ername":"检查室二","patientcode":"10-03","patientname":"林新梅","lb":"EDO","call_time":"10:16:23","wait_status":"6","nextName":"潘子敏","nextCode":"10-04","room_name":null,"call_time1":null},
+			
+			// {"ername":"检查室一","patientcode":"10-04","patientname":"潘子敏","lb":"EDO","call_time":"10:16:31","wait_status":"6","nextName":"蒲维奇","nextCode":"14-02","room_name":null,"call_time1":null},
+			
+			// {"ername":"检查室三","patientcode":"14-02","patientname":"蒲维奇","lb":"EDO","call_time":"14:42:00","wait_status":"6","nextName":"张秋萍","nextCode":"14-03","room_name":null,"call_time1":null},
+			
+			// {"ername":"检查室四","patientcode":"14-03","patientname":"张秋萍","lb":"EDO","call_time":"15:14:27","wait_status":"6","nextName":"","nextCode":"","room_name":null,"call_time1":null}],
+			
+			// "ServiceTime":"2020-09-16 10:57:58"}
+			// }
+			
 			uni.request({
-				url: 'http://129.1.20.21:8019/Queue/EXAM_Get_Queue',
-				// url: 'http://192.168.0.159:8018/Queue/Get_Queue',
+				url: 'http://129.1.20.21:8019/Queue/MZ_Get_Queue',
 				data: {
-					lb: this.iType,
 					room_name_type: this.screenNumber,
 				},
 				timeout: 3000,
 				success: res => {
 					let datas = res.data.Data;
 					let voiceDataInit = [];
+					this.newDate(res.data.ServiceTime);
+					this.initRoom();
 					datas.forEach((data, index) => {
-						let name = this.$util.hideName(data.PATIENTNAME);
+						let name = this.$util.hideName(data.patientname);
 						let dataMap = {
-							room: data.ROOM_NAME,
-							number: data.PATIENTCODE||'',
-							name: name
+							room: data.room_name||data.ername,
+							number: data.patientcode||'',	
+							name: name,
+							nextName:this.$util.hideName(data.nextName),
+							nextCode:data.nextCode,
 						};
-						this.data = this.data.concat(dataMap);
+						if(this.screenNumber==1){
+							switch(dataMap.room) {
+								case '检查室一':
+									this.data[0] = dataMap
+									break;
+								case '检查室二':
+									this.data[1] = dataMap
+									break;
+								case '检查室三':
+									this.data[2] = dataMap
+									break;
+								case '检查室四':
+									this.data[3] = dataMap
+									break;
+							} 
+						}else{
+							switch(dataMap.room) {
+								case '麻醉室一':
+									this.data[0] = dataMap
+									break;
+								case '麻醉室二':
+									this.data[1] = dataMap
+									break;
+								case '麻醉室三':
+									this.data[2] = dataMap
+									break;
+								case '麻醉室四':
+									this.data[3] = dataMap
+									break;
+							} 
+						}
 						if(name && this.playSound){
 							let number = this.chineseNumeral(dataMap.number+'')||'';
 							number = number?number+'号,':'';
-							let speakText = `请,${number}${data.PATIENTNAME}到,${dataMap.room}检查`;
-							console.log(number);
+							let speakText = `请,${number}${data.patientname}到,${dataMap.room},检查`;
 							if(this.data.length==0){
 								this.voiceData.push(speakText);
 								this.voiceDataInit.push(speakText);
@@ -246,7 +325,7 @@ export default {
 						setTimeout(() => {
 							this.init();
 						}, 5000);
-					}			
+					}	
 					
 				},
 				fail: res => {
@@ -254,6 +333,9 @@ export default {
 						title: '请求失败',
 						icon: 'none'
 					});
+					setTimeout(() => {
+						this.init();
+					}, 5000);
 				}
 			});
 		},
@@ -261,6 +343,7 @@ export default {
 		voiceQueue(){
 			// #ifdef APP-PLUS
 				FvvUniTTS.init((callback) => {
+					console.log(this.voiceData[0]);
 					FvvUniTTS.speak({
 						text:this.voiceData[0]
 					});
@@ -289,6 +372,10 @@ export default {
 				this.voiceData.shift();
 				if(this.voiceData.length>0){
 					this.voiceQueue()
+				}else{
+					setTimeout(() => {
+						this.init()
+					}, 5000);
 				}
 			}, date);
 			
@@ -370,8 +457,8 @@ page {
 	height: 118px;
 }
 .room {
-	width: 735px;
-	margin-left: 50px;
+	width: 435px;
+	padding-right: 50px;
 }
 .content {
 	position: relative;
@@ -407,14 +494,14 @@ page {
 .info {
 	padding-left: 35px;
 	padding-right: 35px;
+	padding-top: 120px;
 }
 .info-patient {
 	display: flex;
-	height: 234px;
+	height: 201px;
 }
 .name {
 	width: 735px;
-	margin-left: 143px;
 }
 .info-patient view {
 	font-size: 60px;
@@ -460,5 +547,56 @@ page {
 	font-size: 25px;
 	border: 1px solid;
 	padding: 20px 30px;
+}
+@media screen and (max-width: 1280px) {
+    .bg{
+		height: 720px;
+		width: 1280px;
+	}
+	.info{
+		padding-left: 24px;
+		padding-right: 24px;
+		padding-top: 79px;
+	}
+	.header{
+		height: 78px;
+	}
+	.header-time view{
+		font-size: 22px;
+	}
+	.info-patient{
+		height: 135px;;
+	}
+	.info-patient view{
+		font-size: 37px;
+	}
+	.name{
+		width: 453px  
+	}
+	.room{
+		width: 302px;
+		padding-right: 20px;
+	}
+	.popup{
+		width: 500px;
+	}
+	.uni-form-item{
+		padding: 26px;
+	}
+	.popup-title{
+		font-size: 25px;
+	}
+	.uni-input{
+		font-size: 20px;
+	}
+	.radio-group{
+		width: 288px;
+	}
+	.chooseBtn{
+		font-size: 25px;
+	}
+	.popup-btn{
+		font-size: 25px;
+	}
 }
 </style>

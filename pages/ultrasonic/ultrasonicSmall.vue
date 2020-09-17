@@ -12,7 +12,8 @@
 			</view>
 			<view class="info-item">
 				<view class="info-words">
-					<view class="words-title">编号说明</view>
+					<image class="info-img" :src="infoImg" mode=""></image>
+					<!-- <view class="words-title">编号说明</view>
 					<view class="words-explain">
 						<image class="arrow" src="../../static/arrow.png" mode=""></image>
 						<view >
@@ -24,7 +25,7 @@
 							</view>
 						</view>
 					</view>
-					<image class="code" src="../../static/testcode.jpg" mode=""></image>
+					<image class="code" src="../../static/testcode.jpg" mode=""></image> -->
 				</view>
 			</view>
 		</view>
@@ -68,12 +69,12 @@
 					day: '',
 					time: ''
 				},
-				title:'麻醉检查室',
+				title:'',
 				weekday: [],
 				data:{
-					room:'科室1',
-					number:'A1002',
-					name:'张无忌',
+					// room:'科室1',
+					// number:'A1002',
+					// name:'张无忌',
 				},
 				cliniqueCode:'',
 				iType:'',
@@ -85,6 +86,8 @@
 				voiceData:[],
 				test:'测试',
 				testNubmer:0,
+				infoImgFrist:true,
+				infoImg:'',
 			}
 		},
 		onLoad() {
@@ -141,58 +144,51 @@
 					return false;
 				}
 				// 测试使用
-				let datas = [{"PATIENTNAME":"王素霞","LB":"CT","ROOM_NAME":"64排CT","WAIT_STATUS":"4","CALL_TIME1":"16:31:40","PATIENTCODE":"2-8","ERNAME":"64排CT","CALL_TIME":"16:31:40"},
-				{"PATIENTNAME":"吴良付","LB":"EDO","ROOM_NAME":"检查室二","WAIT_STATUS":"6","CALL_TIME1":"15:32:53","PATIENTCODE":"14-03","ERNAME":"检查室二","CALL_TIME":"15:32:53"},
-				{"PATIENTNAME":"田江芬","LB":"EDO","ROOM_NAME":"检查室三","WAIT_STATUS":"4","CALL_TIME1":"16:26:29","PATIENTCODE":"16-05","ERNAME":"检查室三","CALL_TIME":"16:26:29"}];
-				datas[0].PATIENTCODE = datas[0].PATIENTCODE + this.testNubmer++
-				if(datas.length>0){
-					let name = this.$util.hideName(datas[0].PATIENTNAME);
-					let dataMap = {
-						name:name,
-						number:datas[0].PATIENTCODE,
+				// let datas = [{"patientname":"王素霞","LB":"CT","ROOM_NAME":"64排CT","WAIT_STATUS":"4","CALL_TIME1":"16:31:40","patientcode":"2-8","ERNAME":"64排CT","CALL_TIME":"16:31:40"},
+				// {"patientname":"吴良付","LB":"EDO","ROOM_NAME":"检查室二","WAIT_STATUS":"6","CALL_TIME1":"15:32:53","patientcode":"14-03","ERNAME":"检查室二","CALL_TIME":"15:32:53"},
+				// {"patientname":"田江芬","LB":"EDO","ROOM_NAME":"检查室三","WAIT_STATUS":"4","CALL_TIME1":"16:26:29","patientcode":"16-05","ERNAME":"检查室三","CALL_TIME":"16:26:29"}];
+				// datas[0].patientcode = datas[0].patientcode + this.testNubmer++
+				
+				uni.request({
+				    url: 'http://129.1.20.21:8019/Queue/CS_Get_Queue', 
+					data:{
+						lb :this.iType ,
+						room_name_type: this.screenNumber,
+					},
+					timeout:3000,
+				    success: (res) => {
+						let datas = res.data.Data;
+						if(this.infoImgFrist){
+							this.infoImgFrist = false;
+							this.infoImg = res.data.photos||'../../static/ultrasonicInfo.png';
+						}
+						if(datas.length>0){
+							let name = this.$util.hideName(datas[0].patientname);
+							let dataMap = {
+								name:name,
+								number:datas[0].patientcode,
+							}
+							this.data = dataMap
+						}else{
+							this.data = {
+								name:'',
+								number:'',
+							}
+						}
+						setTimeout(() => {
+							this.init();
+						}, 5000);
+				    },
+					fail:(res) => {
+						uni.showToast({
+							title:'请求失败',
+							icon:'none'
+						})
+						setTimeout(() => {
+							this.init();
+						}, 5000);
 					}
-					this.data = dataMap
-				}else{
-					this.data = {
-						name:'',
-						number:'',
-					}
-				}
-				// uni.request({
-				//     url: 'http://129.1.20.21:8019/Queue/CS_Get_Queue', 
-				//     // url: 'http://192.168.0.159:8018/Queue/Get_Queue', 
-				// 	data:{
-				// 		lb :this.iType ,
-				// 		room_name_type: this.screenNumber,
-				// 	},
-				// 	timeout:3000,
-				//     success: (res) => {
-				// 		let datas = res.data.Data;
-				// 		if(datas.length>0){
-				// 			let dataMap = {
-				// 				name:datas[0].PATIENTNAME,
-				// 				number:datas[0].PATIENTCODE,
-				// 			}
-				// 			this.data = dataMap
-				// 		}else{
-				// 			this.data = {
-				// 				name:'',
-				// 				number:'',
-				// 			}
-				// 		}
-						
-						
-				// 		setTimeout(() => {
-				// 			this.init();
-				// 		}, 5000);
-				//     },
-				// 	fail:(res) => {
-				// 		uni.showToast({
-				// 			title:'请求失败',
-				// 			icon:'none'
-				// 		})
-				// 	}
-				// });
+				});
 			},
 		}
 	}
@@ -292,6 +288,10 @@ page {
     letter-spacing: 1px;
     font-weight: 300;
 	position: relative;
+}
+.info-img{
+	width: 917px;
+	height: 440px;
 }
 .info-words .words-title{
 	letter-spacing: 5px;

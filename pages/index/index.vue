@@ -102,7 +102,7 @@ page {
 		min-width: 500px;
 		font-size: 40px;
 		z-index: 100;
-		max-height: 1000px;
+		max-height: 85%;
 		overflow: scroll;
 	}
 	.popup-header{

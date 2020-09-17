@@ -75,7 +75,6 @@ export default {
 		this.iType = uni.getStorageSync('iType') || '';
 		this.screenNumber = uni.getStorageSync('screenNumber') || '';
 		this.playSound = uni.getStorageSync('playSound') || false;
-		let date = new Date();
 		this.weekday = new Array(7);
 		this.weekday[0] = '星期日';
 		this.weekday[1] = '星期一';
@@ -84,13 +83,6 @@ export default {
 		this.weekday[4] = '星期四';
 		this.weekday[5] = '星期五';
 		this.weekday[6] = '星期六';
-		this.newDate();
-		setTimeout(() => {
-			this.newDate();
-			setInterval(() => {
-				this.newDate();
-			}, 60000);
-		}, date.getSeconds() * 1000);
 		if (this.iType && this.screenNumber) {
 			this.init();
 			this.dataPopup.iType = this.iType;
@@ -101,8 +93,8 @@ export default {
 	},
 	methods: {
 		//当前时间
-		newDate() {
-			let date = new Date();
+		newDate(dataTime) {
+			let date = new Date(dataTime);
 			this.dateText = {
 				year: date.getFullYear(),
 				month: date.getMonth() + 1,
@@ -126,7 +118,6 @@ export default {
 			this.screenNumber = res.screenNumber;
 			this.playSound = res.playSound;
 			this.popupShow = false;
-			this.data = [];
 			this.init();
 		},
 		// 初始化数据
@@ -134,84 +125,93 @@ export default {
 			if (this.popupShow) {
 				return false;
 			}
-			this.data = [];
 			// 测试使用
-			let datas = [{"PATIENTNAME":"王素霞","LB":"CT","ROOM_NAME":"64排CT","WAIT_STATUS":"4","CALL_TIME1":"16:31:40","PATIENTCODE":"2-808","ERNAME":"64排CT","CALL_TIME":"16:31:40"},
+// 			let res = {data:{"Data":[
+// {"ghhbid":"434144","dept_code":"2149","dept_name":"名医苑","clinique_name":"专家门诊1","clinique_code":"620","tech_title":null,"doctor":"刘建忠","doctor_pic":null,"calling":"刘建忠","calling_seq":"1231","calling_pre_time":null,"waiting":"高权","waiting_seq":"1","waiting_pre_time":null,"am_pm":"下午","status":"坐诊","dqjzbr":"陈兰","dqjzxh":"2"},
 
-			{"PATIENTNAME":"吴良付","LB":"EDO","ROOM_NAME":"检查室二","WAIT_STATUS":"6","CALL_TIME1":"15:32:53","PATIENTCODE":"14-03","ERNAME":"检查室二","CALL_TIME":"15:32:53"},
+// {"ghhbid":"434149","dept_code":"2149","dept_name":"名医苑","clinique_name":"专家门诊2","clinique_code":"616","tech_title":null,"doctor":"肖定远","doctor_pic":null,"calling":"武则天","calling_seq":"1232","calling_pre_time":null,"waiting":"高权","waiting_seq":"2","waiting_pre_time":null,"am_pm":"下午","status":"坐诊","dqjzbr":"陈兰英","dqjzxh":"1"},
 
-			{"PATIENTNAME":"田江芬","LB":"EDO","ROOM_NAME":"检查室三","WAIT_STATUS":"4","CALL_TIME1":"16:26:29","ERNAME":"检查室三","CALL_TIME":"16:26:29"}];
-			datas[0].PATIENTCODE = datas[0].PATIENTCODE + this.testNubmer++
-			datas[0].PATIENTNAME = datas[0].PATIENTNAME + this.testNubmer
-			let voiceDataInit = [];
-			datas.forEach((data, index) => {
-				let name = this.$util.hideName(data.PATIENTNAME);
-				let dataMap = {
-					room: data.ROOM_NAME,
-					number:'',
-					name: name
-				};
-				this.data = this.data.concat(dataMap);
-				if(name && this.playSound){
-					let number = this.$util.chineseNumeral(dataMap.number+'')||'';
-					number = number?number+'号,':'';
-					let speakText = `请,${number}${data.PATIENTNAME}到,${dataMap.room}检查`;
-					if(this.data.length==0){
-						this.voiceData.push(speakText);
-						this.voiceDataInit.push(speakText);
+// {"ghhbid":"434150","dept_code":"2149","dept_name":"名医苑","clinique_name":"专家门诊3","clinique_code":"623","tech_title":null,"doctor":"金彪","doctor_pic":null,"calling":"杨贵妃","calling_seq":"1233","calling_pre_time":null,"waiting":"高权","waiting_seq":"3","waiting_pre_time":null,"am_pm":"下午","status":"坐诊","dqjzbr":"傅彩云","dqjzxh":"6"},
+
+// {"ghhbid":"434144","dept_code":"2149","dept_name":"名医苑","clinique_name":"专家门诊4","clinique_code":"620","tech_title":null,"doctor":"刘建忠","doctor_pic":null,"calling":"瞌睡乔","calling_seq":"1234","calling_pre_time":null,"waiting":"高权","waiting_seq":"4","waiting_pre_time":null,"am_pm":"下午","status":"坐诊","dqjzbr":"陈兰英","dqjzxh":"1"},
+
+// {"ghhbid":"434149","dept_code":"2149","dept_name":"名医苑","clinique_name":"专家门诊5","clinique_code":"616","tech_title":null,"doctor":"肖定远","doctor_pic":null,"calling":"川建国","calling_seq":"1235","calling_pre_time":null,"waiting":"高权","waiting_seq":"5","waiting_pre_time":null,"am_pm":"下午","status":"坐诊","dqjzbr":"陈兰英","dqjzxh":"1"}
+
+// ],"ServiceTime":"2020-09-08 16:41:01"}}
+			// res.data.Data[0].calling_seq = res.data.Data[0].calling_seq + this.testNubmer++;
+			
+			uni.request({
+				url: 'http://129.1.20.21:8019/Queue/mmy_Get_Queue',
+				data: {
+					dept_code: this.iType,
+					Clinique_code: this.screenNumber,
+				},
+				timeout: 3000,
+				success: res => {
+					let datas = res.data.Data;
+					let dataMaps = [];
+					let voiceDataInit = [];
+					this.newDate(res.data.ServiceTime);
+					datas.forEach((data, index) => {
+						let name = this.$util.hideName(data.calling);
+						let dataMap = {
+							room: data.clinique_name,
+							number:data.calling_seq,
+							name: name
+						};
+						dataMaps = dataMaps.concat(dataMap);
+						if(name && this.playSound){
+							let number = this.$util.chineseNumeral(dataMap.number+'')||'';
+							number = number?number+'号,':'';
+							let speakText = `请,${number}${data.calling}到,${dataMap.room},检查`;
+							if(this.data.length==0){
+								this.voiceData.push(speakText);
+								this.voiceDataInit.push(speakText);
+							}else{
+								voiceDataInit = voiceDataInit.concat(speakText);
+							}
+						}
+					});
+					this.data = dataMaps;
+					if(this.playSound){
+						if(voiceDataInit.length>0){
+							this.voiceData = this.$util.findDifferentElements(voiceDataInit,this.voiceDataInit);
+							this.voiceDataInit = voiceDataInit;
+						}
+						if(this.voiceData.length>0){
+							this.voiceQueue();	
+						}else{
+							setTimeout(() => {
+								this.init()
+							}, 5000);
+						}
 					}else{
-						voiceDataInit = voiceDataInit.concat(speakText);
-					}
-				}
-			});
-			if(this.playSound){
-				if(voiceDataInit.length>0){
-					this.voiceData = this.$util.findDifferentElements(voiceDataInit,this.voiceDataInit);
-					this.voiceDataInit = voiceDataInit;
-				}
-				if(this.voiceData.length>0){
-					this.voiceQueue();	
-				}else{
+						setTimeout(() => {
+							this.init();
+						}, 5000);
+					}	
+				},
+				fail: res => {
+					uni.showToast({
+						title: '请求失败',
+						icon: 'none'
+					});
 					setTimeout(() => {
-						this.init()
+						this.init();
 					}, 5000);
 				}
-			}else{
-				setTimeout(() => {
-					this.init();
-				}, 5000);
-			}			
-
-			// uni.request({
-			// 	url: 'http://129.1.20.21:8019/Queue/EXAM_Get_Queue',
-			// 	// url: 'http://192.168.0.159:8018/Queue/Get_Queue',
-			// 	data: {
-			// 		lb: this.iType,
-			// 		room_name_type: this.screenNumber,
-			// 	},
-			// 	timeout: 3000,
-			// 	success: res => {
-			// 		let datas = res.data.Data;
-					
-			// 	},
-			// 	fail: res => {
-			// 		uni.showToast({
-			// 			title: '请求失败',
-			// 			icon: 'none'
-			// 		});
-			// 	}
-			// });
+			});
 		},
 		// 语音队列
 		voiceQueue(){
 			// #ifdef APP-PLUS
 				FvvUniTTS.init((callback) => {
-					FvvUniTTS.setSpeechRate(60);
 					FvvUniTTS.speak({
 						text:this.voiceData[0]
 					});
 				});
 			// #endif
+			console.log(this.voiceData[0]);
 			if(this.voiceData.length>1){
 				this.onDone(this.voiceData[1]);
 			}else{
@@ -234,7 +234,12 @@ export default {
 				this.voiceData.shift();
 				if(this.voiceData.length>0){
 					this.voiceQueue()
+				}else{
+					setTimeout(() => {
+						this.init()
+					}, 5000);
 				}
+				
 			}, date);
 			
 		},
@@ -295,16 +300,16 @@ page {
 	letter-spacing: 5px;
 }
 .info {
-	padding-left: 35px;
-	padding-right: 35px;
+	padding-left: 139px;
+	padding-right: 139px;
 }
 .info-patient {
 	display: flex;
-	height: 128px;
+	height: 136px;
 }
 .name {
     width: 468px;
-    margin-left: 274px;
+	margin-left: 174px;
 }
 .info-patient view {
 	font-size: 60px;

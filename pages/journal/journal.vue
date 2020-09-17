@@ -15,7 +15,8 @@
 
 <script>
 import popupSet from '../../components/popup-set/popup-set.vue';
-import X2JS from '../../common/xml2json.js'
+import X2JS from '../../common/xml2json.js';
+
 // #ifdef APP-PLUS
 	var FvvUniTTS = uni.requireNativePlugin('Fvv-UniTTS');
 // #endif
@@ -72,22 +73,7 @@ export default {
 	onLoad() {
 		//输出结果
 		this.iType = uni.getStorageSync('iType') || '';
-		// uni.request({
-		// 	url: '/WebServices/WeatherWS.asmx/getWeather',
-		// 	method: 'GET',
-		// 	header:{
-		// 	'Content-Type':'application/x-www-form-urlencoded'
-		// 	},
-		// 	data: {
-		// 		theCityCode:'福州',
-		// 		theUserID:'',
-		// 	},
-		// 	success: res => {
-		// 		console.log(res);
-		// 	},
-		// 	fail: () => {},
-		// 	complete: () => {}
-		// });
+		
 		if (this.iType ) {
 			this.init();
 			this.dataPopup.iType = this.iType;
@@ -131,76 +117,24 @@ export default {
 			}
 			// 测试使用
 			// let data = String('<string xmlns=""> <record><column  name="count_no" value=""><dept><deptName>部门名称 如儿科病区</deptName><bedNum>床号用逗号隔开，如23,35,36</bedNum></dept></column><column  name="today_in" value=""><dept><bedNum>床号用逗号隔开，如23,35,36</bedNum></dept></column><column  name="mov_in" value=""><dept><bedNum>如23,35,36</bedNum></dept></column><column  name="today_out" value=""><dept><bedNum>如23,35,36</bedNum></dept></column><column  name="mov_out" value=""><dept><bedNum>如23,35,36</bedNum></dept></column><column  name="tomorrow_out" value=""><dept><bedNum>如23,35,36</bedNum></dept></column><column  name="mov_room" value=""><dept><bedNum>如23,35,36</bedNum></dept></column><column  name="count_OPS" value=""><dept><bedNum>如23,35,36</bedNum></dept></column><column  name="count_critical" value=""><dept><bedNum>如23,35,36</bedNum></dept></column><column  name="mov_bed" value=""><dept><bedNum>如23,35,36</bedNum></dept></column><column  name="blood_sugar" value=""><dept><bedNum>如23,35,36</bedNum></dept></column><column  name="count_bedsore" value=""><dept><bedNum>如23,35,36</bedNum></dept></column><column  name="count_falling" value=""><dept><bedNum>如23,35,36</bedNum></dept></column><column  name="count_pee" value=""><dept><bedNum>如23,35,36</bedNum></dept></column><column  name="count_in_out" value=""><dept><bedNum>如23,35,36</bedNum></dept></column><column  name="remarks" value=""><dept><bedNum>如23,35,36</bedNum></dept></column><column  name="remarks" value=""><dept><bedNum>明月几时有，把酒问青天。不知天上宫阙，今夕是何年。我欲乘风归去，又恐琼楼玉宇，高处不胜寒。起舞弄清影，何似在人间。</bedNum></dept></column><column  name="count_in_out" value=""><dept><bedNum>如23,35,36</bedNum></dept></column></record></string>')
+			// let res = {data:{"Data":"<record><column  name=\"count_no\" value=\"17\"><dept><deptName>急诊科(病区)</deptName><bedNum>12</bedNum></dept><dept><deptName>结直肠外科(肛肠三科)(病区)</deptName><bedNum>2</bedNum></dept><dept><deptName>微创外科(病区)</deptName><bedNum>3</bedNum></dept></column><column  name=\"today_in\" value=\"\"><dept><deptName>急诊科(病区)</deptName><bedNum>10、6、4、17、13</bedNum></dept></column><column  name=\"today_out\" value=\"\"><dept><deptName>急诊科(病区)</deptName><bedNum>11、13</bedNum></dept></column><column  name=\"mov_bed\" value=\"\"><dept><deptName></deptName><bedNum></bedNum></dept></column><column  name=\"count_critical\" value=\"\"><dept><deptName>急诊科(病区)</deptName><bedNum>4、6、3</bedNum></dept></column><column  name=\"count_in_out\" value=\"\"><dept><deptName>急诊科(病区)</deptName><bedNum>6、3</bedNum></dept></column><column  name=\"custody\" value=\"\"><dept><deptName>急诊科(病区)</deptName><bedNum>4、6、3</bedNum></dept></column><column  name=\"count_falling\" value=\"\"><dept><deptName></deptName><bedNum>3、7、9、12</bedNum></dept></column><column  name=\"remarks\" value=\"\"><dept><deptName></deptName><bedNum>总值班护士长：廖秀娥~~~ ~~~ 值班医生：王榕</bedNum></dept></column><column  name=\"division\" value=\"\"><dept><deptName></deptName><bedNum></bedNum></dept></column><column  name=\"chemotherapy\" value=\"\"></column><column  name=\"tomorrow_chemotherapy\" value=\"\"></column><column  name=\"pipeLine\" value=\"\"><dept><deptName>急诊科(病区)</deptName><bedNum>6、3</bedNum></dept></column></record>"}}
+			
 			uni.request({
-				url: '/api/Service.asmx/QueryNursingDate',
+				url: 'http://129.1.20.21:8020/Queue/getQueryNursingDate',
 				data: {
-					bqh000: this.iType,
+					dqh000: this.iType,
 					types:'1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25',
 				},
-				dataType: "xml",
+				method:'POST',
 				timeout: 3000,
 				success: res => {
 					setTimeout(()=>{
 						this.init();
 					},10000)
-					let data = res.data;
+					let data = res.data.Data;
 					let x2js = new X2JS();
-					let jsonObj = x2js.xml_str2json(data);
-					try{
-						jsonObj.string.record.column.forEach((item)=>{
-							let bedNum = item.dept.bedNum;
-							switch(item._name) {
-								case 'count_no':
-									this.data[0] = bedNum
-									break;
-								case 'today_in':
-								   this.data[1] = bedNum
-									break;
-								case 'mov_in':
-								   this.data[2] = bedNum
-									break;
-								case 'today_out':
-								   this.data[3] = bedNum
-									break;
-								case 'mov_out':
-								   this.data[4] = bedNum
-									break;
-								case 'tomorrow_out':
-								   this.data[5] = bedNum
-									break;
-								case 'mov_room':
-								   this.data[6] = bedNum
-									break;
-								case 'count_OPS':
-								   this.data[7] = bedNum
-									break;
-								case 'count_bedsore':
-								   this.data[8] = bedNum
-									break;
-								case 'mov_bed':
-								   this.data[9] = bedNum
-									break;
-								case 'count_falling':
-								   this.data[10] = bedNum
-									break;
-								case 'blood_sugar':
-								   this.data[11] = bedNum
-									break;
-								case 'count_pee':
-								   this.data[12] = bedNum
-									break;
-								case 'count_critical':
-								   this.data[13] = bedNum
-									break;
-								case 'count_in_out':
-								   this.data[14] = bedNum
-									break;
-								case 'remarks':
-								   this.remarks = bedNum
-									break;
-							} 
-						})
-					}catch(err){
+					let jsonObj = x2js.xml_str2json(res.data.Data);
+					if(jsonObj.record.column.length==0){
 						this.data = {
 							0:'', 
 							1:'',
@@ -218,7 +152,72 @@ export default {
 							13:'',
 							14:'',
 						}
+						return;
 					}
+					jsonObj.record.column.forEach((item,index)=>{
+						let bedNum = '';
+						try{
+							bedNum = (item.dept.bedNum||'');
+						}catch(e){
+							bedNum = '';
+						}
+						switch(item._name) {
+							case 'count_no':
+								let total = 0;
+								let text = '';
+								item.dept.forEach((item)=>{
+									text += item.deptName + item.bedNum
+									total += +item.bedNum
+								})
+								this.data[0] ='总数:'+total+text;
+								break;
+							case 'today_in':
+							   this.data[1] = item.dept.deptName + bedNum
+								break;
+							case 'mov_in':
+							   this.data[2] = item.dept.deptName + bedNum
+								break;
+							case 'today_out':
+							   this.data[3] = item.dept.deptName + bedNum
+								break;
+							case 'mov_out':
+							   this.data[4] = item.dept.deptName + bedNum
+								break;
+							case 'tomorrow_out':
+							   this.data[5] = item.dept.deptName + bedNum
+								break;
+							case 'mov_room':
+							   this.data[6] = item.dept.deptName + bedNum
+								break;
+							case 'count_OPS':
+							   this.data[7] = bedNum
+								break;
+							case 'count_bedsore':
+							   this.data[8] = bedNum
+								break;
+							case 'mov_bed':
+							   this.data[9] = bedNum
+								break;
+							case 'count_falling':
+							   this.data[10] = bedNum
+								break;
+							case 'blood_sugar':
+							   this.data[11] = bedNum
+								break;
+							case 'count_pee':
+							   this.data[12] = bedNum
+								break;
+							case 'count_critical':
+							   this.data[13] = bedNum
+								break;
+							case 'count_in_out':
+							   this.data[14] = bedNum
+								break;
+							case 'remarks':
+							   this.remarks = bedNum
+								break;
+						} 
+					})
 					
 				},
 				fail: res => {
@@ -325,7 +324,6 @@ page {
 	color: #333333;
 	font-size: 36px;
 	font-weight: bold;
-	text-align: center;
 }
 
 </style>

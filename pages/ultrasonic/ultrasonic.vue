@@ -121,13 +121,6 @@ export default {
 		this.weekday[4] = '星期四';
 		this.weekday[5] = '星期五';
 		this.weekday[6] = '星期六';
-		this.newDate();
-		setTimeout(() => {
-			this.newDate();
-			setInterval(() => {
-				this.newDate();
-			}, 60000);
-		}, date.getSeconds() * 1000);
 		if (this.iType && this.screenNumber) {
 			this.init();
 		}
@@ -141,8 +134,8 @@ export default {
 			});
 		},
 		//当前时间
-		newDate() {
-			let date = new Date();
+		newDate(dataTime) {
+			let date = new Date(dataTime);
 			this.dateText = {
 				year: date.getFullYear(),
 				month: date.getMonth() + 1,
@@ -179,7 +172,6 @@ export default {
 			uni.setStorageSync('screenNumber', this.screenNumber);
 			uni.setStorageSync('title', this.title);
 			this.popupShow = false;
-			this.data = [];
 			this.init();
 			this.$refs.popup.close();
 			uni.hideLoading();
@@ -189,113 +181,81 @@ export default {
 			if (this.popupShow) {
 				return false;
 			}
-			this.data = [];
 			// 测试使用
-			let datas = [{"PATIENTNAME":"王素霞","LB":" EDO","ROOM_NAME":"检查室一","WAIT_STATUS":"4","CALL_TIME1":"16:31:40","PATIENTCODE":"2-808","ERNAME":"检查室一","CALL_TIME":"16:31:40"},
+// 			let datas = [{"patientname":"王素霞","LB":" EDO","room_name":"检查室一","WAIT_STATUS":"4","call_time1":"16:31:40","patientcode":"2-808","ername":"检查室一","call_time":"16:31:40"},
 
-{"PATIENTNAME":"吴良付","LB":"EDO","ROOM_NAME":"检查室二","WAIT_STATUS":"6","CALL_TIME1":"15:32:53","PATIENTCODE":"14-03","ERNAME":"检查室二","CALL_TIME":"15:32:53"},
+// {"patientname":"吴良付","LB":"EDO","room_name":"检查室二","WAIT_STATUS":"6","call_time1":"15:32:53","patientcode":"14-03","ername":"检查室二","call_time":"15:32:53"},
 
-{"PATIENTNAME":"田江芬","LB":"EDO","ROOM_NAME":"检查室三","WAIT_STATUS":"4","CALL_TIME1":"16:26:29","PATIENTCODE":"16-05","ERNAME":"检查室三","CALL_TIME":"16:26:29"},
+// {"patientname":"田江芬","LB":"EDO","room_name":"检查室三","WAIT_STATUS":"4","call_time1":"16:26:29","patientcode":"16-05","ername":"检查室三","call_time":"16:26:29"},
 
-{"PATIENTNAME":"田江芬","LB":"EDO","ROOM_NAME":"检查室四","WAIT_STATUS":"4","CALL_TIME1":"16:26:29","PATIENTCODE":"16-05","ERNAME":"检查室四","CALL_TIME":"16:26:29"}];
-			datas[0].PATIENTCODE = datas[0].PATIENTCODE + this.testNubmer++
-			let voiceDataInit = [];
-			datas.forEach((data, index) => {
-				let name = this.$util.hideName(data.PATIENTNAME);
-				let dataMap = {
-					room: data.ROOM_NAME,
-					number: data.PATIENTCODE||'',
-					name: name
-				};
-				this.data = this.data.concat(dataMap);
+// {"patientname":"田江芬","LB":"EDO","room_name":"检查室四","WAIT_STATUS":"4","call_time1":"16:26:29","patientcode":"16-05","ername":"检查室四","call_time":"16:26:29"}];
+// 			datas[0].patientcode = datas[0].patientcode + this.testNubmer++
+// 			let voiceDataInit = [];
+// 			this.newDate('2020-08-26 16:17:54');
 			
-				if(name && this.playSound){
-					let number = this.chineseNumeral(dataMap.number+'')||'';
-					number = number?number+'号,':'';
-					let speakText = `请,${number}${data.PATIENTNAME}到,${dataMap.room}检查`;
-					console.log(number);
-					if(this.data.length==0){
-						this.voiceData.push(speakText);
-						this.voiceDataInit.push(speakText);
+			uni.request({
+				url: 'http://129.1.20.21:8019/Queue/CS_Get_Queue',
+				data: {
+					lb: this.iType,
+					room_name_type: this.screenNumber,
+				},
+				timeout: 3000,
+				success: res => {
+					let datas = res.data.Data;
+					let voiceDataInit = [];
+					let dataMaps = [];
+					this.newDate(res.data.ServiceTime);
+					datas.forEach((data, index) => {
+						let name = this.$util.hideName(data.patientname);
+						let dataMap = {
+							room: data.room_name,
+							number: data.patientcode||'',
+							name: name
+						};
+						dataMaps = dataMaps.concat(dataMap);
+					
+						if(name && this.playSound){
+							let number = this.chineseNumeral(dataMap.number+'')||'';
+							number = number?number+'号,':'';
+							let speakText = `请,${number}${data.patientname}到,${dataMap.room},检查`;
+							if(this.data.length==0){
+								this.voiceData.push(speakText);
+								this.voiceDataInit.push(speakText);
+							}else{
+								voiceDataInit = voiceDataInit.concat(speakText);
+							}
+						}
+					});
+					this.data = dataMaps;
+					if(this.playSound){
+						if(voiceDataInit.length>0){
+							this.voiceData = this.$util.findDifferentElements(voiceDataInit,this.voiceDataInit);
+							this.voiceDataInit = voiceDataInit;
+						}
+						if(this.voiceData.length>0){
+							this.voiceQueue();	
+						}else{
+							setTimeout(() => {
+								this.init()
+							}, 5000);
+						}
 					}else{
-						voiceDataInit = voiceDataInit.concat(speakText);
+						setTimeout(() => {
+							this.init();
+						}, 5000);
 					}
-				}
-			});
-			if(this.playSound){
-				if(voiceDataInit.length>0){
-					this.voiceData = this.$util.findDifferentElements(voiceDataInit,this.voiceDataInit);
-					this.voiceDataInit = voiceDataInit;
-				}
-				if(this.voiceData.length>0){
-					this.voiceQueue();	
-				}else{
+					
+				},
+				fail: res => {
+					uni.showToast({
+						title: '请求失败',
+						icon: 'none'
+					});
 					setTimeout(() => {
-						this.init()
+						this.init();
 					}, 5000);
 				}
-			}else{
-				setTimeout(() => {
-					this.init();
-				}, 5000);
-			}			
-
-			// uni.request({
-			// 	url: 'http://129.1.20.21:8019/Queue/CS_Get_Queue',
-			// 	// url: 'http://192.168.0.159:8018/Queue/Get_Queue',
-			// 	data: {
-			// 		lb: this.iType,
-			// 		room_name_type: this.screenNumber,
-			// 	},
-			// 	timeout: 3000,
-			// 	success: res => {
-			// 		let datas = res.data.Data;
-			// 		let voiceDataInit = [];
-			// 		datas.forEach((data, index) => {
-			// 			let name = this.$util.hideName(data.PATIENTNAME);
-			// 			let dataMap = {
-			// 				room: data.ROOM_NAME,
-			// 				number: data.PATIENTCODE,
-			// 				name: name
-			// 			};
-			// 			this.data = this.data.concat(dataMap);
-			// 			if(name && this.playSound){
-			// 				let number = this.chineseNumeral(dataMap.seeing.number+'');
-			// 				let speakText = `请,${data.CALLING_SEQ}号,${data.CALLING}到,${dataMap.room}`;
-			// 				if(this.data.length==0){
-			// 					this.voiceData.push(speakText);
-			// 					this.voiceDataInit.push(speakText);
-			// 				}else{
-			// 					voiceDataInit = voiceDataInit.concat(speakText);
-			// 				}
-			// 			}
-			// 		});
-			// 		if(this.playSound){
-			// 			if(voiceDataInit.length>0){
-			// 				this.findDifferentElements(voiceDataInit,this.voiceDataInit)
-			// 				this.voiceDataInit = voiceDataInit;
-			// 			}
-			// 			if(this.voiceData.length>0){
-			// 				this.voiceQueue();	
-			// 			}else{
-			// 				setTimeout(() => {
-			// 					this.init()
-			// 				}, 5000);
-			// 			}
-			// 		}else{
-			// 			setTimeout(() => {
-			// 				this.init();
-			// 			}, 5000);
-			// 		}
-					
-			// 	},
-			// 	fail: res => {
-			// 		uni.showToast({
-			// 			title: '请求失败',
-			// 			icon: 'none'
-			// 		});
-			// 	}
-			// });
+			});
 		},
 		// 语音队列
 		voiceQueue(){
@@ -306,6 +266,7 @@ export default {
 					});
 				});
 			// #endif
+			console.log(this.voiceData[0]);
 			if(this.voiceData.length>1){
 				this.onDone(this.voiceData[1]);
 			}else{
@@ -324,11 +285,14 @@ export default {
 			if(data.length>12){
 				date = date + ((data.length - 12)*300 ) 
 			}
-			console.log("onDone");
 			setTimeout(() => {
 				this.voiceData.shift();
 				if(this.voiceData.length>0){
 					this.voiceQueue()
+				}else{
+					setTimeout(() => {
+						this.init()
+					}, 5000);
 				}
 			}, date);
 			

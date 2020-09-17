@@ -52,7 +52,9 @@
 
 <script>
 import uniPopup from '@/components/uni-popup/uni-popup.vue'
-var FvvUniTTS = uni.requireNativePlugin('Fvv-UniTTS')
+// #ifdef APP-PLUS
+	var FvvUniTTS = uni.requireNativePlugin('Fvv-UniTTS');
+// #endif
 export default {
 	data() {
 		return {
@@ -121,8 +123,8 @@ export default {
 			});
 		},
 		//当前时间
-		newDate() {
-			let date = new Date();
+		newDate(dataTime) {
+			let date = new Date(dataTime);
 			this.dateText = {
 				year: date.getFullYear(),
 				month: date.getMonth() + 1,
@@ -168,11 +170,16 @@ export default {
 				return false;
 			}
 			// 测试使用
-			// let datas = [{"DEPT_NAME":"心血管科","CALLING_SEQ":"32","DEPT_CODE":2142,"AM_PM":"下午","CLINIQUE_CODE":613,"DQJZBR":"肖斌","DQJZXH":"30","STATUS":"坐诊","CLINIQUE_NAME":"223诊室","GHHBID":431973,"WAITING_SEQ":"33","WAITING":"薛云萍","CALLING":"陈木凤","DOCTOR":"赵利"}]
+			// let datas = [{"DEPT_NAME":"麻醉科","CALLING_SEQ":"5","DEPT_CODE":2241,"CLINIQUE_NAME":"麻醉科门诊","GHHBID":0,"CLINIQUE_CODE":1029,"CALLING":"程爱岩","DOCTOR":"卢希"}]
 			// datas[0].CALLING_SEQ = datas[0].CALLING_SEQ + this.testNubmer++
+			// let dataMaps = [];
+			// let datas = [] ;
+			// if(this.testNubmer>1){
+			// 	datas = []
+			// }
+			
 			uni.request({
 			    url: 'http://129.1.20.21:8019/Queue/Suwen_Get_Queue', 
-			    // url: 'http://192.168.0.159:8018/Queue/Get_Queue', 
 				data:{
 					clinique_code :this.iType ,
 				},
@@ -180,9 +187,12 @@ export default {
 			    success: (res) => {
 					let datas = res.data.Data;
 					let dataMaps = [];
+					this.newDate(res.data.ServiceTime);
 					let voiceDataInit = [];
-					if(datas[0].DEPT_NAME){
-						this.title = datas[0].DEPT_NAME;
+					if(datas.length>0){
+						if(this.title!=datas[0].DEPT_NAME){
+							this.title = datas[0].DEPT_NAME||'';
+						}
 					}
 					datas.forEach((data,index) =>{
 						let waitName =data.WAITING?this.$util.hideName(data.WAITING):'';
@@ -231,19 +241,27 @@ export default {
 						title:'请求失败',
 						icon:'none'
 					})
+					setTimeout(() => {
+						this.init()
+					}, 5000);
 				}
 			});
 		},
 		// 语音队列
 		voiceQueue(){
-			FvvUniTTS.init((callback) => {
-				FvvUniTTS.speak({
-					text:this.voiceData[0]
+			let text = this.voiceData[0] ; 
+			// #ifdef APP-PLUS
+				FvvUniTTS.init((callback) => {
+					FvvUniTTS.speak({
+						text:text
+					});
 				});
-			});
+			// #endif
+			
 			if(this.voiceData.length>1){
 				this.onDone(this.voiceData[1]);
 			}else{
+				this.voiceData = [];
 				setTimeout(() => {
 					this.init()
 				}, 5000);
@@ -259,6 +277,10 @@ export default {
 				this.voiceData.shift();
 				if(this.voiceData.length>0){
 					this.voiceQueue()
+				}else{
+					setTimeout(() => {
+						this.init()
+					}, 5000);
 				}
 			}, date);
 			

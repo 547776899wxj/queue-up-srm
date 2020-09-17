@@ -3,7 +3,7 @@
 		<image class="bg" src="/static/famousSmall.png" ></image>
 		<view class="info-doctor">
 			<view class="doctor-top">
-				<image class="doctor-user" src="../../static/user.png" mode=""></image>
+				<image class="doctor-user" :src="data.img" mode=""></image>
 				<view class="doctor-basic">
 					<view class="doctor-basic-name">{{data.doctorName}}</view>
 					<view>{{data.title}}</view>
@@ -13,7 +13,7 @@
 				<view>
 					{{data.info}}
 				</view>
-				<view>
+				<view v-if="data.time">
 					坐诊时间：{{data.time}}
 				</view>
 			</view>
@@ -84,7 +84,6 @@
 				this.dataPopup.iType = this.iType;
 				this.dataPopup.screenNumber = this.screenNumber;
 			}
-			console.log(this.$util.hideName('无需衔接'));
 		},
 		methods: {
 			
@@ -111,34 +110,47 @@
 					return false;
 				}
 				// 测试使用
-				let datas = {doctorName:'张敏建',title:'主任医师、教授、博导',info:'福建省名中医，擅长男性性功能障碍,福建省名中医，擅长男性性功能障碍',time:'周一上午',img:'../../static/user.png',seeingNumber:'14',seeingName:'吴先杰',waitingNumber:'15',waitingName:'吴先杰',}
-				datas.seeingNumber = datas.seeingNumber + this.testNubmer++
-				this.data = datas;
-				setTimeout(() => {
-					this.init();
-				}, 5000);
-				// uni.request({
-				//     url: 'http://129.1.20.21:8019/Queue/EXAM_Get_Queue', 
-				//     // url: 'http://192.168.0.159:8018/Queue/Get_Queue', 
-				// 	data:{
-				// 		lb :this.iType ,
-				// 		room_name_type: this.screenNumber,
-				// 	},
-				// 	timeout:3000,
-				//     success: (res) => {
-				// 		let datas = res.data.Data;
-				// 		this.data = datas;
-				// 		setTimeout(() => {
-				// 			this.init();
-				// 		}, 5000);
-				//     },
-				// 	fail:(res) => {
-				// 		uni.showToast({
-				// 			title:'请求失败',
-				// 			icon:'none'
-				// 		})
-				// 	}
-				// });
+// 				let res = {data:{"Data":[{"ghhbid":"434144","dept_code":"2149","dept_name":"名医苑","clinique_name":"专家门诊1","clinique_code":"620","tech_title":null,"doctor":"刘建忠","doctor_pic":null,"calling":"刘建忠","calling_seq":"1231","calling_pre_time":null,"waiting":"高权","waiting_seq":"1","waiting_pre_time":null,"am_pm":"下午","status":"坐诊","dqjzbr":"陈兰","dqjzxh":"2"}],
+// "ServiceTime":"2020-09-10 11:02:22",
+// "Doctor":{"doctorID":null,"doctorName":null,"doctorTitle":"主治医师","doctorPicture":"/photos/李四.jpg","doctorInfo":"福建省名中医，擅长男性性功能障碍,福建省名中医，擅长男性性功能障碍","doctorWorkTime":"997"}}};
+				uni.request({
+					url: 'http://129.1.20.21:8019/Queue/mmy_Get_Queue',
+					data: {
+						dept_code: this.iType,
+						Clinique_code: this.screenNumber,
+					},
+					timeout: 3000,
+					success: res => {
+						let datas = res.data.Data;
+						let doctor = res.data.Doctor;
+						setTimeout(() => {
+							this.init();
+						}, 5000);
+						if(datas.length==0){
+							return
+						}
+						this.data = {
+							doctorName:datas[0].doctor||'',
+							title:doctor.doctorTitle||'',
+							info:doctor.doctorInfo||'',
+							time:doctor.doctorWorkTime||'',
+							img:doctor.doctorPicture?('http://129.1.20.21:8019'+doctor.doctorPicture):'../../static/user.png',
+							seeingNumber:datas[0].calling_seq,
+							seeingName:datas[0].calling,
+							waitingNumber:datas[0].waiting_seq,
+							waitingName:datas[0].waiting,
+						}
+					},
+					fail: res => {
+						uni.showToast({
+							title: '请求失败',
+							icon: 'none'
+						});
+						setTimeout(() => {
+							this.init();
+						}, 5000);
+					}
+				});
 			},
 		}
 	}
@@ -228,9 +240,12 @@ page {
 }
 
 .doctor-user{
-	height: 307px;
+	height: 290px;
 	width: 230px;
 	background-color: #FFFFFF;
+	background-image: url(../../static/user.png);
+	background-repeat: no-repeat;
+	background-size: 230px 290px;
 }
 .info-doctor{
     padding-top: 309px;

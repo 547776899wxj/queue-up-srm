@@ -14,19 +14,31 @@
 		<view class="header-title">{{title}}</view>
 		<view class="info">
 			<view class="info-item" v-if="data.length>0">
-				<view class="info-item-nubmer">{{data[0].number}}</view>
+				<view class="item-user">
+					<view class="info-item-nubmer mt-15">{{data[0].number}} {{data[0].name}}</view>
+					<view class="info-item-nubmer mt-15">{{data[0].number}} {{data[0].name}}</view>
+				</view>
 				<view class="info-item-title">{{data[0].room}}</view>
 			</view>
 			<view class="info-item mt-39" v-if="data.length>1">
-				<view class="info-item-nubmer">{{data[1].number}}</view>
+				<view class="item-user">
+					<view class="info-item-nubmer mt-15">{{data[1].number}} {{data[1].name}}</view>
+					<view class="info-item-nubmer mt-15">{{data[1].number}} {{data[1].name}}</view>
+				</view>
 				<view class="info-item-title">{{data[1].room}}</view>
 			</view>
 			<view class="info-item mt-15" v-if="data.length>2">
-				<view class="info-item-nubmer">{{data[2].number}}</view>
+				<view class="item-user">
+					<view class="info-item-nubmer mt-15">{{data[2].number}} {{data[2].name}}</view>
+					<view class="info-item-nubmer mt-15">{{data[2].number}} {{data[2].name}}</view>
+				</view>
 				<view class="info-item-title">{{data[2].room}}</view>
 			</view>
 			<view class="info-item mt-20" v-if="data.length>3">
-				<view class="info-item-nubmer">{{data[3].number}}</view>
+				<view class="item-user">
+					<view class="info-item-nubmer mt-15">{{data[3].number}} {{data[3].name}}</view>
+					<view class="info-item-nubmer mt-15">{{data[3].number}} {{data[3].name}}</view>
+				</view>
 				<view class="info-item-title">{{data[3].room}}</view>
 			</view>
 		</view>
@@ -39,14 +51,10 @@
 						<input class="uni-input" v-model="title" placeholder="请输入标题" />
 					</view>
 					<view class="uni-form-item uni-form-btn">
-						<view class="popup-title">科室：</view>
-						<input class="uni-input" v-model="iType" placeholder="请输入科室" />
-					</view>
-					<view class="uni-form-item ">
 						<view class="popup-title">屏幕：</view>
 						<input class="uni-input" v-model="screenNumber" type="number" placeholder="第一个屏幕输入:1" />
 					</view>
-					<view class="uni-form-item uni-form-btn"><button type="default" class="chooseBtn" @click="navTo()">选择页面</button></view>
+					<view class="uni-form-item "><button type="default" class="chooseBtn" @click="navTo()">选择页面</button></view>
 					
 					<view class="uni-form-item ">
 						<button class="popup-btn" @click="close">取消</button>
@@ -93,7 +101,6 @@
 			}
 		},
 		onLoad() {
-			this.iType = uni.getStorageSync('iType')||'';
 			this.screenNumber = uni.getStorageSync('screenNumber') || '';
 			this.title = uni.getStorageSync('title') || '';
 			let date = new Date();
@@ -105,14 +112,7 @@
 			this.weekday[4] = '星期四';
 			this.weekday[5] = '星期五';
 			this.weekday[6] = '星期六';
-			this.newDate();
-			setTimeout(() => {
-				this.newDate();
-				setInterval(() => {
-					this.newDate();
-				}, 60000);
-			}, date.getSeconds() * 1000);
-			if(this.iType){
+			if(this.screenNumber){
 				this.init();
 			}
 		},
@@ -125,8 +125,8 @@
 				});
 			},
 			//当前时间
-			newDate() {
-				let date = new Date();
+			newDate(dataTime) {
+				let date = new Date(dataTime);
 				this.dateText = {
 					year: date.getFullYear(),
 					month: date.getMonth() + 1,
@@ -148,22 +148,12 @@
 			},
 			//确定设置
 			confirm(){
-				if(this.iType===''){
-					uni.showToast({
-						title:'请输入科室',
-						icon:'none'
-					})
-					return
-				}
-				
 				uni.showLoading({
 					title: '加载中',
 				});
-				uni.setStorageSync('iType',this.iType);
 				uni.setStorageSync('screenNumber', this.screenNumber);
 				uni.setStorageSync('title', this.title);
 				this.popupShow = false;
-				this.data = [];
 				this.init();
 				this.$refs.popup.close();
 				uni.hideLoading();
@@ -173,31 +163,41 @@
 				if(this.popupShow){
 					return false;
 				}
-				this.data = [];
+				
 				// 测试使用
-
-				// let datas = [{"PATIENTNAME":"王素霞","LB":"CT","ROOM_NAME":"64排CT","WAIT_STATUS":"4","CALL_TIME1":"16:31:40","PATIENTCODE":"2-8","ERNAME":"64排CT","CALL_TIME":"16:31:40"},
-				// {"PATIENTNAME":"吴良付","LB":"EDO","ROOM_NAME":"检查室二","WAIT_STATUS":"6","CALL_TIME1":"15:32:53","PATIENTCODE":"14-03","ERNAME":"检查室二","CALL_TIME":"15:32:53"},
-				// {"PATIENTNAME":"田江芬","LB":"EDO","ROOM_NAME":"检查室三","WAIT_STATUS":"4","CALL_TIME1":"16:26:29","PATIENTCODE":"16-05","ERNAME":"检查室三","CALL_TIME":"16:26:29"}];
-				// datas[0].PATIENTCODE = datas[0].PATIENTCODE + this.testNubmer++
+				// let res = {data:{"Data":[
+				// {"ername":"检查室二","patientcode":"10-03","patientname":"林新梅","lb":"EDO","call_time":"10:16:23","wait_status":"6","nextName":"潘子敏","nextCode":"10-04","room_name":null,"call_time1":null},
+				
+				// {"ername":"检查室一","patientcode":"10-04","patientname":"潘子敏","lb":"EDO","call_time":"10:16:31","wait_status":"6","nextName":"蒲维奇","nextCode":"14-02","room_name":null,"call_time1":null},
+				
+				// {"ername":"检查室三","patientcode":"14-02","patientname":"蒲维奇","lb":"EDO","call_time":"14:42:00","wait_status":"6","nextName":"张秋萍","nextCode":"14-03","room_name":null,"call_time1":null},
+				
+				// {"ername":"检查室四","patientcode":"14-03","patientname":"张秋萍","lb":"EDO","call_time":"15:14:27","wait_status":"6","nextName":"","nextCode":"","room_name":null,"call_time1":null}],
+				
+				// "ServiceTime":"2020-09-16 10:57:58"}
+				// }
 				
 				uni.request({
-				    url: 'http://129.1.20.21:8019/Queue/EXAM_Get_Queue', 
-				    // url: 'http://192.168.0.159:8018/Queue/Get_Queue', 
+				    url: 'http://129.1.20.21:8019/Queue/MZ_Get_Queue', 
 					data:{
-						lb :this.iType ,
 						room_name_type: this.screenNumber,
 					},
 					timeout:3000,
 				    success: (res) => {
 						let datas = res.data.Data;
+						let dataMaps = [];
+						this.newDate(res.data.ServiceTime);
 						datas.forEach((data,index) =>{
 							let dataMap = {
-								room:data.ROOM_NAME,
-								number:data.PATIENTCODE,
+								room: data.room_name||data.ername,
+								number: data.patientcode||'',	
+								name: this.$util.hideName(data.patientname),
+								nextName:this.$util.hideName(data.nextName),
+								nextCode:data.nextCode,
 							}
-							this.data = this.data.concat(dataMap)
+							dataMaps = dataMaps.concat(dataMap)
 						})
+						this.data = dataMaps;
 						setTimeout(() => {
 							this.init();
 						}, 5000);
@@ -207,6 +207,9 @@
 							title:'请求失败',
 							icon:'none'
 						})
+						setTimeout(() => {
+							this.init();
+						}, 5000);
 					}
 				});
 			},
@@ -300,13 +303,14 @@ page {
 .info-item:first-child{
 	height: 416px;
 }
+
 .info-item-nubmer{
-	font-size: 120px;
-	width: 620px;
+	font-size: 65px;
+	width: 580px;
 	text-align: center;
 }
 .info-item-title{
-	font-size: 90px;
+	font-size: 80px;
 	width: 455px;
 	text-align: center;
 	overflow: hidden;
