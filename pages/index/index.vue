@@ -32,6 +32,9 @@
 				<view class="uni-form-item ">
 					<button type="default" @click="navTo('../journal/journal')">工作日志</button>
 				</view>
+				<view class="uni-form-item ">
+					<button type="default" @click="navTo('../skin/skin')">皮肤科</button>
+				</view>
 				<!-- <view>
 					{{failText}}
 				</view> -->

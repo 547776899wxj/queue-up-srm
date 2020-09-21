@@ -119,7 +119,7 @@ export default {
 		},
 		navTo(){
 			uni.setStorageSync('pageSetBoolean',false);
-			uni.navigateTo({
+			uni.redirectTo({
 				url:'../../pages/index/index'
 			})
 		},

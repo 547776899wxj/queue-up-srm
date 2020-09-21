@@ -16,28 +16,28 @@
 			<view class="info-item" v-if="data.length>0">
 				<view class="item-user">
 					<view class="info-item-nubmer mt-15">{{data[0].number}} {{data[0].name}}</view>
-					<view class="info-item-nubmer mt-15">{{data[0].number}} {{data[0].name}}</view>
+					<view class="info-item-nubmer mt-15">{{data[0].nextCode}} {{data[0].nextName}}</view>
 				</view>
 				<view class="info-item-title">{{data[0].room}}</view>
 			</view>
 			<view class="info-item mt-39" v-if="data.length>1">
 				<view class="item-user">
 					<view class="info-item-nubmer mt-15">{{data[1].number}} {{data[1].name}}</view>
-					<view class="info-item-nubmer mt-15">{{data[1].number}} {{data[1].name}}</view>
+					<view class="info-item-nubmer mt-15">{{data[1].nextCode}} {{data[1].nextName}}</view>
 				</view>
 				<view class="info-item-title">{{data[1].room}}</view>
 			</view>
 			<view class="info-item mt-15" v-if="data.length>2">
 				<view class="item-user">
 					<view class="info-item-nubmer mt-15">{{data[2].number}} {{data[2].name}}</view>
-					<view class="info-item-nubmer mt-15">{{data[2].number}} {{data[2].name}}</view>
+					<view class="info-item-nubmer mt-15">{{data[2].nextCode}} {{data[2].nextName}} </view>
 				</view>
 				<view class="info-item-title">{{data[2].room}}</view>
 			</view>
 			<view class="info-item mt-20" v-if="data.length>3">
 				<view class="item-user">
 					<view class="info-item-nubmer mt-15">{{data[3].number}} {{data[3].name}}</view>
-					<view class="info-item-nubmer mt-15">{{data[3].number}} {{data[3].name}}</view>
+					<view class="info-item-nubmer mt-15">{{data[3].nextCode}} {{data[3].nextName}}</view>
 				</view>
 				<view class="info-item-title">{{data[3].room}}</view>
 			</view>
@@ -52,7 +52,7 @@
 					</view>
 					<view class="uni-form-item uni-form-btn">
 						<view class="popup-title">屏幕：</view>
-						<input class="uni-input" v-model="screenNumber" type="number" placeholder="第一个屏幕输入:1" />
+						<input class="uni-input" v-model="screenNumber"  placeholder="第一个屏幕输入:1" />
 					</view>
 					<view class="uni-form-item "><button type="default" class="chooseBtn" @click="navTo()">选择页面</button></view>
 					
@@ -117,6 +117,50 @@
 			}
 		},
 		methods: {
+			//初始化room
+			initRoom(){
+				if(this.screenNumber==1){
+					this.data = [
+						{
+							room:'检查室一',
+							number:'',
+							name:'',
+						},{
+							room:'检查室二',
+							number:'',
+							name:'',
+						},{
+							room:'检查室三',
+							number:'',
+							name:'',
+						},{
+							room:'检查室四',
+							number:'',
+							name:'',
+						}
+					]
+				}else{
+					this.data = [
+						{
+							room:'麻醉室一',
+							number:'',
+							name:'',
+						},{
+							room:'麻醉室二',
+							number:'',
+							name:'',
+						},{
+							room:'麻醉室三',
+							number:'',
+							name:'',
+						},{
+							room:'麻醉室四',
+							number:'',
+							name:'',
+						},
+					]
+				}
+			},
 			//选择页面
 			navTo(){
 				uni.setStorageSync('pageSetBoolean',false);
@@ -154,6 +198,7 @@
 				uni.setStorageSync('screenNumber', this.screenNumber);
 				uni.setStorageSync('title', this.title);
 				this.popupShow = false;
+				this.initRoom();
 				this.init();
 				this.$refs.popup.close();
 				uni.hideLoading();
@@ -166,7 +211,7 @@
 				
 				// 测试使用
 				// let res = {data:{"Data":[
-				// {"ername":"检查室二","patientcode":"10-03","patientname":"林新梅","lb":"EDO","call_time":"10:16:23","wait_status":"6","nextName":"潘子敏","nextCode":"10-04","room_name":null,"call_time1":null},
+				// {"ername":"麻醉室二","patientcode":"10-03","patientname":"林新梅","lb":"EDO","call_time":"10:16:23","wait_status":"6","nextName":"潘子敏","nextCode":"10-04","room_name":null,"call_time1":null},
 				
 				// {"ername":"检查室一","patientcode":"10-04","patientname":"潘子敏","lb":"EDO","call_time":"10:16:31","wait_status":"6","nextName":"蒲维奇","nextCode":"14-02","room_name":null,"call_time1":null},
 				
@@ -176,28 +221,61 @@
 				
 				// "ServiceTime":"2020-09-16 10:57:58"}
 				// }
+			
 				
 				uni.request({
 				    url: 'http://129.1.20.21:8019/Queue/MZ_Get_Queue', 
 					data:{
-						room_name_type: this.screenNumber,
+						roomNameType: this.screenNumber,
 					},
 					timeout:3000,
 				    success: (res) => {
 						let datas = res.data.Data;
 						let dataMaps = [];
 						this.newDate(res.data.ServiceTime);
-						datas.forEach((data,index) =>{
+						this.initRoom();
+						datas.forEach((data, index) => {
+							let name = this.$util.hideName(data.patientname);
 							let dataMap = {
 								room: data.room_name||data.ername,
 								number: data.patientcode||'',	
-								name: this.$util.hideName(data.patientname),
+								name: name,
 								nextName:this.$util.hideName(data.nextName),
 								nextCode:data.nextCode,
+							};
+							if(this.screenNumber==1){
+								switch(dataMap.room) {
+									case '检查室一':
+										this.data[0] = dataMap
+										break;
+									case '检查室二':
+										this.data[1] = dataMap
+										break;
+									case '检查室三':
+										this.data[2] = dataMap
+										break;
+									case '检查室四':
+										this.data[3] = dataMap
+										break;
+								} 
+							}else{
+								switch(dataMap.room) {
+									case '麻醉室一':
+										this.data[0] = dataMap
+										break;
+									case '麻醉室二':
+										this.data[1] = dataMap
+										break;
+									case '麻醉室三':
+										this.data[2] = dataMap
+										break;
+									case '麻醉室四':
+										this.data[3] = dataMap
+										break;
+								} 
 							}
-							dataMaps = dataMaps.concat(dataMap)
-						})
-						this.data = dataMaps;
+							
+						});
 						setTimeout(() => {
 							this.init();
 						}, 5000);
@@ -368,4 +446,40 @@ page {
 		border: 1px solid;
 		padding: 20px 30px;
 	}
+@media screen and (max-width: 800px) {
+	.bg {
+		width: 768px;
+		height: 1366px;
+	}
+	.header{
+		height: 70px;
+	}
+	.header-time{
+		top: 40px;
+	}
+	.header-time view {
+		font-size: 30px;
+		color: #000;
+		letter-spacing:3px;
+	}
+	.info-item:first-child{
+		height: 259px;
+	}
+	.info-item-nubmer{
+		width: 400px;
+		font-size: 50px;
+	}
+	.info-item-title{
+		font-size: 54px;
+	}
+	.info-item{
+		height: 248px; 
+	}
+	.mt-39 {
+	    margin-top: 32px;
+	}
+	.mt-15{
+	    margin-top: 19px;
+	}
+}
 </style>

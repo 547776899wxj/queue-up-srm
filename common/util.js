@@ -1,4 +1,7 @@
 function hideName(name) {
+	if(!name){
+		return '';
+	}
 	if (name.length == 2) {
 		name = '*' + name.slice(1, name.length);
 	} else if (name.length > 2) {

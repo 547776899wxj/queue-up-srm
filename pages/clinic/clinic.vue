@@ -103,13 +103,13 @@ export default {
 		this.weekday[4] = '星期四';
 		this.weekday[5] = '星期五';
 		this.weekday[6] = '星期六';
-		this.newDate();
-		setTimeout(() => {
-			this.newDate();
-			setInterval(() => {
-				this.newDate();
-			}, 60000);
-		}, date.getSeconds() * 1000);
+		// this.newDate();
+		// setTimeout(() => {
+		// 	this.newDate();
+		// 	setInterval(() => {
+		// 		this.newDate();
+		// 	}, 60000);
+		// }, date.getSeconds() * 1000);
 		if(this.iType){
 			this.init();
 		}
@@ -118,6 +118,7 @@ export default {
 		//选择页面
 		navTo(){
 			uni.setStorageSync('pageSetBoolean',false);
+			this.popupShow = true;
 			uni.redirectTo({
 				url: '../index/index',
 			});
