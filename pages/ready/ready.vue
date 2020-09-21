@@ -188,7 +188,9 @@
 			close(){
 				this.$refs.popup.close();
 				this.popupShow = false;
-				
+				if(this.screenNumber){
+					this.init();
+				}
 			},
 			//确定设置
 			confirm(){
@@ -208,20 +210,46 @@
 				if(this.popupShow){
 					return false;
 				}
-				
 				// 测试使用
-				// let res = {data:{"Data":[
-				// {"ername":"麻醉室二","patientcode":"10-03","patientname":"林新梅","lb":"EDO","call_time":"10:16:23","wait_status":"6","nextName":"潘子敏","nextCode":"10-04","room_name":null,"call_time1":null},
-				
-				// {"ername":"检查室一","patientcode":"10-04","patientname":"潘子敏","lb":"EDO","call_time":"10:16:31","wait_status":"6","nextName":"蒲维奇","nextCode":"14-02","room_name":null,"call_time1":null},
-				
-				// {"ername":"检查室三","patientcode":"14-02","patientname":"蒲维奇","lb":"EDO","call_time":"14:42:00","wait_status":"6","nextName":"张秋萍","nextCode":"14-03","room_name":null,"call_time1":null},
-				
-				// {"ername":"检查室四","patientcode":"14-03","patientname":"张秋萍","lb":"EDO","call_time":"15:14:27","wait_status":"6","nextName":"","nextCode":"","room_name":null,"call_time1":null}],
-				
-				// "ServiceTime":"2020-09-16 10:57:58"}
+				// let res = {data:{
+				// 		"Data": [{
+				// 			"ername": "麻醉室三",
+				// 			"patientcode": "10-04",
+				// 			"patientname": "潘子敏",
+				// 			"lb": "EDO",
+				// 			"call_time": "10:16:31",
+				// 			"wait_status": "6",
+				// 			"nextName": "",
+				// 			"nextCode": "",
+				// 			"room_name": null,
+				// 			"call_time1": null
+				// 		}, {
+				// 			"ername": "麻醉室一",
+				// 			"patientcode": "14-02",
+				// 			"patientname": "蒲维奇",
+				// 			"lb": "EDO",
+				// 			"call_time": "14:42:00",
+				// 			"wait_status": "6",
+				// 			"nextName": "张秋萍",
+				// 			"nextCode": "14-03",
+				// 			"room_name": null,
+				// 			"call_time1": null
+				// 		}, {
+				// 			"ername": "麻醉室一",
+				// 			"patientcode": "14-03",
+				// 			"patientname": "张秋萍",
+				// 			"lb": "EDO",
+				// 			"call_time": "15:14:27",
+				// 			"wait_status": "6",
+				// 			"nextName": "",
+				// 			"nextCode": "",
+				// 			"room_name": null,
+				// 			"call_time1": null
+				// 		}],
+				// 		"ServiceTime": "2020-09-21 11:33:18"
+				// 	}
 				// }
-			
+				
 				
 				uni.request({
 				    url: 'http://129.1.20.21:8019/Queue/MZ_Get_Queue', 

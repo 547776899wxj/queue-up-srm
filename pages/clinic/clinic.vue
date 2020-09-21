@@ -143,6 +143,9 @@ export default {
 		close(){
 			this.$refs.popup.close();
 			this.popupShow = false;
+			if (this.iType) {
+				this.init();
+			}
 			
 		},
 		//确定设置

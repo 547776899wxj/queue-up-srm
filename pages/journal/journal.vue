@@ -101,6 +101,9 @@ export default {
 		// 关闭设置
 		close(){
 			this.popupShow = false;
+			if (this.iType ) {
+				this.init();
+			}
 		},
 		//确定设置
 		confirm(res) {

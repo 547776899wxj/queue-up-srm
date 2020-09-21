@@ -66,10 +66,12 @@ export default {
 			uni.redirectTo({
 				url: data,
 				success: res => {
+					console.log('redirectTo');
 					uni.setStorageSync('pageSet',data);
 				},
 				fail: (res) => {
 					this.failTextr = JSON.stringify(res);
+					console.log(this.failTextr);
 				},
 				complete: () => {}
 			});

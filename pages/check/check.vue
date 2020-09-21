@@ -213,6 +213,9 @@ export default {
 		close() {
 			this.$refs.popup.close();
 			this.popupShow = false;
+			if (this.screenNumber) {
+				this.init();
+			}
 		},
 		//确定设置
 		confirm() {
@@ -246,7 +249,7 @@ export default {
 			
 			// "ServiceTime":"2020-09-16 10:57:58"}
 			// }
-				
+			
 			uni.request({
 				url: 'http://129.1.20.21:8019/Queue/MZ_Get_Queue',
 				data: {

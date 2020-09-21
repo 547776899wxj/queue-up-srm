@@ -5,13 +5,17 @@
 			<view class="info-patient" v-for="(item,index) in data" :key="index">
 				<view class="room">{{item.room}}</view>
 				<view class="doctor">{{item.doctor}}</view>
-				<view class="seeing" v-show="item.seeing.number">
-					<text class="pr-15">{{item.seeing.number}}号</text>
-					<text class="pl-15">{{item.seeing.name}}</text>
+				<view class="seeing" >
+					<view v-show="item.seeing.number">
+						<text class="pr-15" >{{item.seeing.number}}号</text>
+						<text class="pl-15">{{item.seeing.name}}</text>
+					</view>
 				</view>
-				<view class="seeing" v-show="item.wait.number">
-					<text class="pr-15">{{item.wait.number}}号</text>
-					<text class="pl-15">{{item.wait.name}}</text>
+				<view class="seeing" >
+					<view v-show="item.wait.number">
+						<text class="pr-15">{{item.wait.number}}号</text>
+						<text class="pl-15">{{item.wait.name}}</text>
+					</view>
 				</view>
 			</view>
 		</view>
@@ -98,6 +102,9 @@ export default {
 		// 关闭设置
 		close(){
 			this.popupShow = false;
+			if(this.iType){
+				this.init();
+			}
 		},
 		//确定设置
 		confirm(res) {
@@ -114,18 +121,7 @@ export default {
 			}
 			// 测试使用
 // 			let res = {data:{"Data":[
-// {"ghhbid":"434144","dept_code":"2149","dept_name":"名医苑","clinique_name":"专家门诊1","clinique_code":"620","tech_title":null,"doctor":"刘建忠","doctor_pic":null,"calling":"刘建忠","calling_seq":"1231","calling_pre_time":null,"waiting":null,"waiting_seq":"1","waiting_pre_time":null,"am_pm":"下午","status":"坐诊","dqjzbr":"陈兰","dqjzxh":"2"},
-
-// {"ghhbid":"434149","dept_code":"2149","dept_name":"名医苑","clinique_name":"专家门诊2","clinique_code":"616","tech_title":null,"doctor":"肖定远","doctor_pic":null,"calling":"刘建忠","calling_seq":"1232","calling_pre_time":null,"waiting":"高权","waiting_seq":"2","waiting_pre_time":null,"am_pm":"下午","status":"坐诊","dqjzbr":"陈兰英","dqjzxh":"1"},
-
-// {"ghhbid":"434150","dept_code":"2149","dept_name":"名医苑","clinique_name":"专家门诊3","clinique_code":"623","tech_title":null,"doctor":"金彪","doctor_pic":null,"calling":"刘建忠","calling_seq":"1233","calling_pre_time":null,"waiting":"高权","waiting_seq":"3","waiting_pre_time":null,"am_pm":"下午","status":"坐诊","dqjzbr":"傅彩云","dqjzxh":"6"},
-
-// {"ghhbid":"434144","dept_code":"2149","dept_name":"名医苑","clinique_name":"专家门诊4","clinique_code":"620","tech_title":null,"doctor":"刘建忠","doctor_pic":null,"calling":"刘建忠","calling_seq":"1234","calling_pre_time":null,"waiting":"高权","waiting_seq":"4","waiting_pre_time":null,"am_pm":"下午","status":"坐诊","dqjzbr":"陈兰英","dqjzxh":"1"},
-
-// {"ghhbid":"434149","dept_code":"2149","dept_name":"名医苑","clinique_name":"专家门诊5","clinique_code":"616","tech_title":null,"doctor":"肖定远","doctor_pic":null,"calling":"刘建忠","calling_seq":"1235","calling_pre_time":null,"waiting":"高权","waiting_seq":"5","waiting_pre_time":null,"am_pm":"下午","status":"坐诊","dqjzbr":"陈兰英","dqjzxh":"1"},
-// {"ghhbid":"434149","dept_code":"2149","dept_name":"名医苑","clinique_name":"专家门诊5","clinique_code":"616","tech_title":null,"doctor":"肖定远","doctor_pic":null,"calling":"刘建忠","calling_seq":"1235","calling_pre_time":null,"waiting":"高权","waiting_seq":"5","waiting_pre_time":null,"am_pm":"下午","status":"坐诊","dqjzbr":"陈兰英","dqjzxh":"1"},
-// {"ghhbid":"434149","dept_code":"2149","dept_name":"名医苑","clinique_name":"专家门诊5","clinique_code":"616","tech_title":null,"doctor":"肖定远","doctor_pic":null,"calling":"刘建忠","calling_seq":"1235","calling_pre_time":null,"waiting":"高权","waiting_seq":"5","waiting_pre_time":null,"am_pm":"下午","status":"坐诊","dqjzbr":"陈兰英","dqjzxh":"1"},
-// {"ghhbid":"436283","dept_code":"2208","dept_name":"皮肤科","clinique_name":"皮肤门诊1","clinique_code":"946","tech_title":null,"doctor":"王斗训","doctor_pic":null,"calling":null,"calling_seq":null,"calling_pre_time":null,"waiting":null,"waiting_seq":null,"waiting_pre_time":null,"am_pm":"上午","status":"坐诊","dqjzbr":"陈静","dqjzxh":"23"}
+// {"ghhbid":null,"dept_code":null,"dept_name":"皮肤科","clinique_name":"皮肤1","clinique_code":"946","tech_title":null,"doctor":"王斗训","doctor_pic":null,"calling":null,"calling_seq":null,"calling_pre_time":null,"waiting":"郑杰","waiting_seq":"1","waiting_pre_time":null,"am_pm":"下午","status":"坐诊","dqjzbr":null,"dqjzxh":null},{"ghhbid":null,"dept_code":null,"dept_name":"皮肤科","clinique_name":"皮肤2","clinique_code":"947","tech_title":null,"doctor":"谢涵津","doctor_pic":null,"calling":null,"calling_seq":null,"calling_pre_time":null,"waiting":null,"waiting_seq":null,"waiting_pre_time":null,"am_pm":"下午","status":"坐诊","dqjzbr":null,"dqjzxh":null},{"ghhbid":null,"dept_code":null,"dept_name":"皮肤科","clinique_name":"皮肤3","clinique_code":"948","tech_title":null,"doctor":"林宝珍","doctor_pic":null,"calling":null,"calling_seq":null,"calling_pre_time":null,"waiting":"林榛苹","waiting_seq":"1","waiting_pre_time":null,"am_pm":"下午","status":"坐诊","dqjzbr":null,"dqjzxh":null}
 // ],"ServiceTime":"2020-09-08 16:41:01"}}			
 // 			res.data.Data[0].calling_seq =  res.data.Data[0].calling_seq +this.testNubmer++
 			
@@ -188,7 +184,7 @@ export default {
 						setTimeout(() => {
 							this.init();
 						}, 5000);
-					}	
+					}		
 					
 			    },
 				fail:(res) => {
@@ -241,7 +237,7 @@ export default {
 						this.init()
 					}, 5000);
 				}
-			}, date);
+			}, 100);
 			
 		},
 		//转大写
