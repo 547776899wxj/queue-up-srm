@@ -237,7 +237,7 @@ export default {
 						this.init()
 					}, 5000);
 				}
-			}, 100);
+			}, date);
 			
 		},
 		//转大写
