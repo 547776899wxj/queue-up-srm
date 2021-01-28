@@ -6,6 +6,9 @@
 			</view>
 			<view>
 				<view class="uni-form-item ">
+					<button type="default" @click="navTo('../nosethroat/nosethroat')">耳鼻喉科</button>
+				</view>
+				<view class="uni-form-item ">
 					<button type="default" @click="navTo('../clinic/clinic')">门诊(横屏)</button>
 				</view>
 				<!-- <view class="uni-form-item ">
@@ -35,6 +38,7 @@
 				<view class="uni-form-item ">
 					<button type="default" @click="navTo('../skin/skin')">皮肤科</button>
 				</view>
+				
 				<!-- <view>
 					{{failText}}
 				</view> -->
