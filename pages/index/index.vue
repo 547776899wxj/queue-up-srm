@@ -6,6 +6,12 @@
 			</view>
 			<view>
 				<view class="uni-form-item ">
+					<button type="default" @click="navTo('../allBigRoom/index')">4月大屏</button>
+				</view>
+				<view class="uni-form-item ">
+					<button type="default" @click="navTo('../clinic/anaesthesia')">麻醉门诊</button>
+				</view>
+				<view class="uni-form-item ">
 					<button type="default" @click="navTo('../nosethroat/nosethroat')">耳鼻喉科</button>
 				</view>
 				<view class="uni-form-item ">
@@ -59,7 +65,6 @@ export default {
 	onShow() {
 		this.pageSet = uni.getStorageSync('pageSet')||'';
 		this.pageSetBoolean = uni.getStorageSync('pageSetBoolean');
-		console.log(uni.getStorageSync('pageSetBoolean'));
 		if(this.pageSet && this.pageSetBoolean){
 			this.navTo(this.pageSet);
 		}

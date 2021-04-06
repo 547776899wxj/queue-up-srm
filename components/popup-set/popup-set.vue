@@ -33,6 +33,17 @@
 						    </label>
 						</radio-group>
 					</view>
+					<view class="uni-form-item" v-if="showChoseLine">
+						<view class="popup-title">科室：</view>
+						<radio-group @change="radioChangeLine" class="radio-group" style="font-size: 30px;flex-wrap: wrap;width: 380px;">
+							<label class="uni-list-cell uni-list-cell-pd" :style="{width:index%2==0?'183px':'auto'}"  v-for="(item, index) in items" :key="index">
+								<view>
+									<radio class="line-radio" :value="item.value" :checked="item.value == dataInit.lineNumber" />
+								</view>
+								<view>{{item.name}}</view>
+							</label>
+						</radio-group>
+					</view>
 					<view class="uni-form-item "><button type="default" class="chooseBtn" @click="navTo()">选择页面</button></view>
 
 					<view class="uni-form-item form-item-bottom">
@@ -51,7 +62,18 @@ export default {
 	name: 'popupSet',
 	data() {
 		return {
-			
+			items: [
+				{name:'耳鼻喉',value:'ebh'},
+				{name:'内科',value:'nk'},
+				{name:'骨伤科',value:'gsk'},
+				{name:'普外科',value:'pwk'},
+				{name:'疾病代谢',value:'jbdx'},
+				{name:'肛肠科',value:'gck'},
+				{name:'男科',value:'andrology'},
+				{name:'针灸推拿',value:'zjtn'},
+				{name:'产科',value:'ck'},
+				{name:'老专家',value:'lzj'},
+			],
 		};
 	},
 	props: {
@@ -64,6 +86,7 @@ export default {
 					iType:'',
 					screenNumber:'',
 					playSound:false,
+					lineNumber:'ebh',
 				}
 			}
 		},
@@ -90,6 +113,10 @@ export default {
 		showPlaySound:{
 			type: Boolean,
 			default: false
+		},
+		showChoseLine:{
+			type: Boolean,
+			default: false
 		}
 	},
 	methods:{
@@ -113,6 +140,7 @@ export default {
 			uni.setStorageSync('screenNumber', this.dataInit.screenNumber);
 			uni.setStorageSync('title', this.dataInit.title);
 			uni.setStorageSync('playSound', this.dataInit.playSound);
+			uni.setStorageSync('lineNumber', this.dataInit.lineNumber);
 			this.$refs.popup.close();
 			this.$emit('confirm',this.dataInit)
 			uni.hideLoading();
@@ -130,6 +158,9 @@ export default {
 			}else{
 				this.dataInit.playSound = false;
 			}
+		},
+		radioChangeLine(evt) {
+			this.dataInit.lineNumber = evt.target.value;
 		},
 	}
 };
