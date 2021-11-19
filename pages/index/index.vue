@@ -6,6 +6,18 @@
 			</view>
 			<view>
 				<view class="uni-form-item ">
+					<button type="default" @click="navTo('../check/checkNew')">麻醉胃镜</button>
+				</view>
+				<view class="uni-form-item ">
+					<button type="default" @click="navTo('../xray/xray')">拍片</button>
+				</view>
+				<view class="uni-form-item ">
+					<button type="default" @click="navTo('../ct/ct')">CT</button>
+				</view>
+				<view class="uni-form-item ">
+					<button type="default" @click="navTo('../gynaecology/gynaecology')">小屏</button>
+				</view>
+				<view class="uni-form-item ">
 					<button type="default" @click="navTo('../allBigRoom/index')">4月大屏</button>
 				</view>
 				<view class="uni-form-item ">

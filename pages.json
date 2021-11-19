@@ -37,6 +37,15 @@
 			}
 		},
 		{
+		    "path" : "pages/check/checkNew",
+		    "style" : {
+				"navigationBarTitleText": "",
+				"app-plus": {
+					"titleNView": false //禁用原生导航栏
+				}
+			}
+		},
+		{
 		    "path" : "pages/ready/ready",
 		    "style" : {
 				"navigationBarTitleText": "",
@@ -129,9 +138,43 @@
 		        }
 		    }
 		    
+		},
+		{
+		    "path" : "pages/gynaecology/gynaecology",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": false,
+				"app-plus": {
+					"titleNView": false //禁用原生导航栏
+				}
+		    }
+		    
+		},
+		{
+		    "path" : "pages/ct/ct",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": false,
+				"app-plus": {
+					"titleNView": false //禁用原生导航栏
+				}
+		    }
+		    
+		},
+		{
+		    "path" : "pages/xray/xray",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": false,
+				"app-plus": {
+					"titleNView": false //禁用原生导航栏
+				}
+		    }
+		    
 		}
-       
-       
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

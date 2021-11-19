@@ -63,6 +63,7 @@ export default {
 	data() {
 		return {
 			items: [
+				{name:'测试',value:'test'},
 				{name:'耳鼻喉',value:'ebh'},
 				{name:'内科',value:'nk'},
 				{name:'骨伤科',value:'gsk'},
@@ -73,6 +74,9 @@ export default {
 				{name:'针灸推拿',value:'zjtn'},
 				{name:'产科',value:'ck'},
 				{name:'老专家',value:'lzj'},
+				{name:'妇科',value:'fk'},
+				{name:'传统内科',value:'ctnk'},
+				{name:'皮肤科',value:'pfk'},
 			],
 		};
 	},

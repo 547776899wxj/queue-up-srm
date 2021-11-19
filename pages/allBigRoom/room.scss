@@ -94,6 +94,38 @@
 	    width: 455px;
 	}
 }
+.info.andrology{
+	.info-patient{
+		height: 166px;
+	}
+	font-size: 64px;
+	.room{
+		width: 429px;
+	}
+	.seeing{
+	    width: 543px;
+	}
+	.waiting{
+	    width: 455px;
+	}
+}
+.info.skin{
+	padding-top: 143px;
+	font-size: 55px;
+	.info-patient{
+		height:99px;
+	}
+	
+	.room{
+		width: 429px;
+	}
+	.seeing{
+	    width: 543px;
+	}
+	.waiting{
+	    width: 455px;
+	}
+}
 .info.bg_4{
 	.room:first-child{
 		width: 310px;
@@ -143,6 +175,7 @@ page {
 .content {
 	position: relative;
 	height: 100%;
+	width: 100%;
 }
 
 .bg {

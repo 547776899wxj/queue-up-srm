@@ -24,9 +24,9 @@
 					<text class="pl-15">{{ item.name }}</text>
 				</view>
 				<view class="name wait" style="font-size: 58px;">
-					<view  v-for="(waitItem, index) in item.waitList" :key="index">
-						<view class="pr-15" v-if="waitItem.number">{{ waitItem.number }}号</view>
-						<view class="pl-15">{{ waitItem.name }}</view>
+					<view>
+						<view class="pr-15" v-if="item.waitingNo">{{ item.waitingNo }}号</view>
+						<view class="pl-15">{{ item.waitingName }}</view>
 					</view>
 				</view>
 				
@@ -133,7 +133,6 @@ export default {
 		},
 		//确定设置
 		confirm(res) {
-			this.title = res.title;
 			this.popupShow = false;
 			this.data = [];
 			this.init();
@@ -144,12 +143,11 @@ export default {
 				return false;
 			}
 			// 测试使用
-			// let res = {data:{queueTitle:'妇科疑难病症',"reload": false,"Data": [{"erName": "麻醉室一","patientCode": 123,"patientName": '我喜欢',"lb": "EDO","callTime": null,"waitStatus": null,"waitList": [{"erName": "麻醉室一","patientCode": 123,"patientName": '我喜欢',"lb": "EDO","callTime": null,"waitStatus": null,"waitList": []},{"erName": "麻醉室一","patientCode": 123,"patientName": '我喜欢',"lb": "EDO","callTime": null,"waitStatus": null,"waitList": []}]},{"erName": "麻醉室二","patientCode": "08-12","patientName": "张三","lb": "EDO","callTime": "14:39:09","waitStatus": null,"waitList": [{"erName": "麻醉室二","patientCode": "08-13","patientName": "李四","lb": "EDO","callTime": "14:43:57","waitStatus": "4"},{"erName": "麻醉室二","patientCode": "08-14","patientName": "王五","lb": "EDO","callTime": "14:55:28","waitStatus": "4"}]},{"erName": "麻醉室三","patientCode": null,"patientName": null,"lb": "EDO","callTime": null,"waitStatus": null,"waitList": []},{"erName": "麻醉室四","patientCode": null,"patientName": null,"lb": "EDO","callTime": null,"waitStatus": null,"waitList": []}],
-			// "ServerTime": "2021-04-14 15:43:50"}
-			// }
+			// let res = {data:{"reload": false,"data": [{"ername": "检查室一","lb": "EDO","callingNo": "09-01","callingName": "张三","waitingNo": "09-02","waitingName": "李四"},{"ername": "检查室二","lb": "EDO","callingNo": "09-03","callingName": "王五","waitingNo": "","waitingName": ""},{"ername": "检查室三","lb": "EDO","callingNo": "","callingName": "","waitingNo": "09-04","waitingName": "赵六"},{"ername": "检查室四","lb": "EDO","callingNo": "","callingName": "","waitingNo": "","waitingName": ""}],"queueTitle": "麻醉胃镜","serviceTime": "2021-05-31 15:32:47"}}
+			
 		
 			uni.request({
-				url: 'http://129.1.20.21:8019/Queue/spacsQueue',
+				url: 'http://129.1.20.21:8019/Queue/pacs',
 				success: res => {
 					try{
 						let datas = res.data;
@@ -163,25 +161,22 @@ export default {
 						this.title = res.data.queueTitle || '';
 						let dataMaps = [];
 						this.newDate(res.data.ServerTime);
-						datas.Data.forEach((data, index) => {
-							let name = this.$util.hideName(data.patientName);
-							let waitList = data.waitList.map(item =>{
-								return {
-									name: this.$util.hideName(item.patientName),
-									number: item.patientCode
-								}
-							})
+						datas.data.forEach((data, index) => {
+							console.log(data);
+							let name = this.$util.hideName(data.callingName);
+							
 							let dataMap = {
-								room: data.erName || '',
-								number: data.patientCode||'',	
+								room: data.ername || '',
+								number: data.callingNo||'',	
 								name: name,
-								waitList: waitList
+								waitingNo: data.waitingNo,
+								waitingName: this.$util.hideName(data.waitingName) || ''
 							};
 							
 							if(name && this.playSound){
 								let number = this.chineseNumeral(dataMap.number+'')||'';
 								number = number?number+'号,':'';
-								let speakText = `请,${number}${data.patientName}到,${dataMap.room},检查`;
+								let speakText = `请,${number}${data.callingName}到,${dataMap.room},检查`;
 								if(this.data.length==0){
 									this.voiceData.push(speakText);
 									this.voiceDataInit.push(speakText);
@@ -230,13 +225,7 @@ export default {
 		voiceQueue(){
 			let text = this.voiceData[0]; 
 			console.log(text);
-			// #ifdef H5
-				this.$tui.webView.postMessage({
-					data: {
-						text:text
-					}
-				})
-			// #endif
+			
 			// #ifdef APP-PLUS
 				FvvUniTTS.init((callback) => {
 					FvvUniTTS.speak({

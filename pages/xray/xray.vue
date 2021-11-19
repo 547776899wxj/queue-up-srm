@@ -1,9 +1,9 @@
 /**
- * 消化内镜
+ * 拍片1
  */
 <template>
 	<view class="content" @longpress="open" @click="open">
-		<image class="bg" src="/static/check.png"></image>
+		<image class="bg" src="../../static/ct.png"></image>
 		<view class="header">
 			<view class="header-title">{{ title }}</view>
 			<view class="header-time">
@@ -17,22 +17,32 @@
 			</view>
 		</view>
 		<view class="info">
-			<view class="info-patient" v-for="(item, index) in data" :key="index">
-				<view class="room">{{ item.room }}</view>
-				<view class="name" style="padding-left: 30px;box-sizing: border-box;">
-					<text class="pr-15" v-if="item.number">{{ item.number }}号</text>
-					<text class="pl-15">{{ item.name }}</text>
+			<view class="info-item">
+				<view class="item-title">
+					拍片1室
 				</view>
-				<view class="name wait" style="font-size: 58px;">
-					<view  v-for="(waitItem, index) in item.waitList" :key="index">
-						<view class="pr-15" v-if="waitItem.number">{{ waitItem.number }}号</view>
-						<view class="pl-15">{{ waitItem.name }}</view>
-					</view>
+				<view class="item-content">
+					<view class="text">请</view>
+					<view class="date-text">{{data[0].name}}</view>
+					<view class="text">到</view>
+					<view class="date-text">拍片1室</view>
+					<view>检查室检查</view>
 				</view>
-				
+			</view>
+			<view class="info-item">
+				<view class="item-title">
+					拍片2室
+				</view>
+				<view class="item-content">
+					<view class="text">请</view>
+					<view class="date-text">{{data[1].name}}</view>
+					<view class="text">到</view>
+					<view class="date-text">拍片2室</view>
+					<view>检查室检查</view>
+				</view>
 			</view>
 		</view>
-		<popupSet ref="popupSet" @confirm="confirm"  @close="close" :dataInit="dataPopup" :showTitle="true"  ></popupSet>
+		<popupSet ref="popupSet" @confirm="confirm"  @close="close" :dataInit="dataPopup"  ></popupSet>
 	</view>
 </template>
 
@@ -60,25 +70,6 @@ export default {
 			},
 			title: '',
 			weekday: [],
-			data: [
-				{
-					room:'',
-					number:'',
-					name:'',
-				},{
-					room:'',
-					number:'',
-					name:'',
-				},{
-					room:'',
-					number:'',
-					name:'',
-				},{
-					room:'',
-					number:'',
-					name:'',
-				},
-			],
 			cliniqueCode: '',
 			iType: '',
 			popupShow: false,
@@ -92,12 +83,13 @@ export default {
 			test: '测试',
 			testNubmer: 0,
 			reload:false,
-			
+			data:[
+				{name:''},
+				{name:''}
+			]
 		};
 	},
 	onLoad() {
-		// this.title = uni.getStorageSync('title') || '';
-		
 		let date = new Date();
 		this.weekday = new Array(7);
 		this.weekday[0] = '星期日';
@@ -133,7 +125,6 @@ export default {
 		},
 		//确定设置
 		confirm(res) {
-			this.title = res.title;
 			this.popupShow = false;
 			this.data = [];
 			this.init();
@@ -147,9 +138,10 @@ export default {
 			// let res = {data:{queueTitle:'妇科疑难病症',"reload": false,"Data": [{"erName": "麻醉室一","patientCode": 123,"patientName": '我喜欢',"lb": "EDO","callTime": null,"waitStatus": null,"waitList": [{"erName": "麻醉室一","patientCode": 123,"patientName": '我喜欢',"lb": "EDO","callTime": null,"waitStatus": null,"waitList": []},{"erName": "麻醉室一","patientCode": 123,"patientName": '我喜欢',"lb": "EDO","callTime": null,"waitStatus": null,"waitList": []}]},{"erName": "麻醉室二","patientCode": "08-12","patientName": "张三","lb": "EDO","callTime": "14:39:09","waitStatus": null,"waitList": [{"erName": "麻醉室二","patientCode": "08-13","patientName": "李四","lb": "EDO","callTime": "14:43:57","waitStatus": "4"},{"erName": "麻醉室二","patientCode": "08-14","patientName": "王五","lb": "EDO","callTime": "14:55:28","waitStatus": "4"}]},{"erName": "麻醉室三","patientCode": null,"patientName": null,"lb": "EDO","callTime": null,"waitStatus": null,"waitList": []},{"erName": "麻醉室四","patientCode": null,"patientName": null,"lb": "EDO","callTime": null,"waitStatus": null,"waitList": []}],
 			// "ServerTime": "2021-04-14 15:43:50"}
 			// }
-		
+			// res.data.Data = [{"erName": "麻醉室三","patientCode": null,"patientName": '我喜欢',"lb": "EDO","callTime": null,"waitStatus": null,"waitList": []}];
+			
 			uni.request({
-				url: 'http://129.1.20.21:8019/Queue/spacsQueue',
+				url: 'http://129.1.20.21:8019/Queue/spacsCTQueue',
 				success: res => {
 					try{
 						let datas = res.data;
@@ -160,11 +152,10 @@ export default {
 							}
 						// #endif
 						let voiceDataInit = [];
-						this.title = res.data.queueTitle || '';
 						let dataMaps = [];
 						this.newDate(res.data.ServerTime);
 						datas.Data.forEach((data, index) => {
-							let name = this.$util.hideName(data.patientName);
+							let name = (data.patientName == '就诊中' ? data.patientName : this.$util.hideName(data.patientName)) || '';
 							let waitList = data.waitList.map(item =>{
 								return {
 									name: this.$util.hideName(item.patientName),
@@ -179,9 +170,11 @@ export default {
 							};
 							
 							if(name && this.playSound){
-								let number = this.chineseNumeral(dataMap.number+'')||'';
-								number = number?number+'号,':'';
-								let speakText = `请,${number}${data.patientName}到,${dataMap.room},检查`;
+								let room = '拍片1室';
+								if(index==1){
+									room = '拍片2室'
+								}
+								let speakText = `请${data.patientName}到${room}检查室检查`;
 								if(this.data.length==0){
 									this.voiceData.push(speakText);
 									this.voiceDataInit.push(speakText);
@@ -191,6 +184,12 @@ export default {
 							}
 							dataMaps = dataMaps.concat(dataMap);
 						});
+						if(dataMaps.length == 0){
+							dataMaps = [{name:''},{name:''}]
+						}else if(dataMaps.length == 1){
+							dataMaps.push({name:''});
+						}
+						console.log(dataMaps);
 						this.data = dataMaps;
 						if(this.playSound){
 							if(voiceDataInit.length>0){
@@ -270,69 +269,38 @@ export default {
 			}, date);
 			
 		},
-
-		//转大写
-		chineseNumeral(data){
-			let tmpnewchar = "" ;
-				for(let char of data){
-					switch (char) {
-			            case "0":   tmpnewchar =  tmpnewchar + "零" ;break;
-			            case "1":  tmpnewchar =  tmpnewchar + "一" ; break;
-			            case "2":  tmpnewchar =  tmpnewchar + "二" ; break;
-			            case "3":  tmpnewchar =  tmpnewchar + "三" ; break;
-			            case "4":  tmpnewchar =  tmpnewchar + "四" ; break;
-			            case "5":  tmpnewchar =  tmpnewchar + "五" ; break;
-			            case "6":  tmpnewchar =  tmpnewchar + "六" ; break;
-			            case "7":  tmpnewchar =  tmpnewchar + "七" ; break;
-			            case "8":  tmpnewchar =  tmpnewchar + "八" ; break;
-			            case "9":  tmpnewchar =  tmpnewchar + "九" ; break;
-						default: tmpnewchar = tmpnewchar + char;
-			        }
-			}
-			return tmpnewchar;
-		},
-		
-		
-		
-		
 	}
 };
 </script>
 
 <style lang="scss">
-.pr-15 {
-	padding-right: 15px;
-}
-.pl-15 {
-	padding-left: 15px;
+.info{
+	padding:  0 40px;
+	color: rgb(0,140,133);
+	.info-item{
+		.item-title{
+			text-align: center;
+			line-height: 97px;
+			font-size: 60px;
+		}
+		.item-content{
+			font-size: 85px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 350px;
+			.date-text{
+				color: rgb(55,79,148);
+				width: 560px;
+				text-align: center;
+			}
+		}
+	}
 }
 page {
 	height: 100%;
 }
-.uni-form-item.uni-form-btn {
-	padding: 0;
-}
-.radio-group{
-	width: 341px;
-	display: flex;
-}
-.radio{
-	transform:scale(2);
-	width: 48px;
-	height: 48px;
-	margin-right: 30px;
-	display: flex;
-	justify-content: center;
-	    margin-left: 30px;
-}
-.uni-list-cell{
-	display: flex;
-	align-items: center;
-}
-.chooseBtn {
-	font-size: 30px;
-	width: 438px;
-}
+
 .header {
 	display: flex;
 	justify-content: center;
@@ -340,13 +308,12 @@ page {
 	position: relative;
 	height: 118px;
 }
-.room {
-	width: 435px;
-	padding-right: 50px;
-}
+
 .content {
 	position: relative;
 	height: 100%;
+	width: 100%;
+	font-family: KaiTi;
 }
 
 .bg {
@@ -366,127 +333,18 @@ page {
 }
 .header-title {
 	color: rgb(253, 250, 7);
-	font-size: 70px;
+	font-size: 60px;
 	font-weight: 800;
 	letter-spacing: 12px;
-	text-align: center;
+	    width: 700px;
+	    text-align: center;
 }
 .header-time view {
 	font-size: 35px;
 	color: #000;
 	letter-spacing: 5px;
 }
-.info {
-	padding-left: 35px;
-	padding-right: 35px;
-	padding-top: 120px;
-}
-.info-patient {
-	display: flex;
-	height: 201px;
-	font-size: 63px;
-}
-.name {
-	width: 735px;
-}
-.info-patient view {
-	
-	color: #000;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
 
-.popup-btn {
-	font-size: 30px;
-	color: #fff;
-	padding-left: 40px;
-	padding-right: 40px;
-	background-color: rgb(68, 114, 196);
-	margin-left: 40px;
-	margin-right: 40px;
-}
-.name.wait{
-	flex-direction: column;
-	
-}
-.popup {
-	background-color: #fff;
-	width: 600px;
-	font-size: 40px;
-	z-index: 100;
-}
-.popup-header {
-	background-color: rgb(68, 114, 196);
-	text-align: center;
-	padding: 10px 0;
-}
-.uni-form-item {
-	display: flex;
-	align-items: center;
-	padding: 40px;
-	justify-content: center;
-}
-.popup-title {
-	font-size: 30px;
-}
-.uni-input {
-	font-size: 25px;
-	border: 1px solid;
-	padding: 20px 30px;
-}
-@media screen and (max-width: 1280px) {
-    .bg{
-		height: 720px;
-		width: 1280px;
-	}
-	.info{
-		padding-left: 24px;
-		padding-right: 24px;
-		padding-top: 79px;
-	}
-	.header{
-		height: 78px;
-	}
-	.header-time view{
-		font-size: 22px;
-	}
-	.info-patient{
-		height: 135px;;
-	}
-	.info-patient view{
-		font-size: 37px;
-	}
-	.name{
-		width: 453px  
-	}
-	.room{
-		width: 302px;
-		padding-right: 20px;
-	}
-	.popup{
-		width: 500px;
-	}
-	.uni-form-item{
-		padding: 26px;
-	}
-	.popup-title{
-		font-size: 25px;
-	}
-	.uni-input{
-		font-size: 20px;
-	}
-	.radio-group{
-		width: 288px;
-	}
-	.chooseBtn{
-		font-size: 25px;
-	}
-	.popup-btn{
-		font-size: 25px;
-	}
-}
+
+
 </style>
